@@ -1,6 +1,6 @@
 ﻿namespace ED7Editor
 {
-    partial class ItemEditor
+    partial class Editor
     {
         /// <summary>
         /// 必需的设计器变量。
