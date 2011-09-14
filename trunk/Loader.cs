@@ -26,16 +26,16 @@ namespace ED7Editor
                 Properties.Settings.Default.ED7Path = fbd.SelectedPath;
                 Properties.Settings.Default.Save();
             }
-            Hide();
-            new ItemEditor().ShowDialog();
-            Close();
+            //Hide();
+            //new Editor().ShowDialog();
+            //Close();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Hide();
-            new ItemEditor().ShowDialog();
-            Close();
+            new Editor(itemEditor).ShowDialog();
+            Show();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -43,6 +43,13 @@ namespace ED7Editor
             Hide();
             new MagicEditor().ShowDialog();
             Close();
+        }
+
+        ItemEditor itemEditor = new ItemEditor();
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            itemEditor.Save();
         }
     }
 }
