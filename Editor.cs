@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
 
 namespace ED7Editor
 {
@@ -16,21 +17,29 @@ namespace ED7Editor
         {
             this.editor = editor;
             InitializeComponent();
+            this.editor.Update += new EventHandler(editor_Update);
         }
 
-        EditorBase editor;
-
-        private void ItemEditor_Load(object sender, EventArgs e)
+        void editor_Update(object sender, EventArgs e)
         {
+            listBox1.Items.Clear();
             foreach (var item in editor.GetList())
             {
                 listBox1.Items.Add(item);
             }
         }
 
+        EditorBase editor;
+
+        private void ItemEditor_Load(object sender, EventArgs e)
+        {
+            editor.Refresh();
+        }
+
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            propertyGrid1.SelectedObject = listBox1.SelectedItem;
+            var x = listBox1.SelectedItem as IndexedItem;
+            propertyGrid1.SelectedObject = x == null ? null : x.Item;
             propertyGrid1.ExpandAllGridItems();
         }
 
@@ -40,31 +49,46 @@ namespace ED7Editor
 
         private void Add_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Add(new Item { Name = " ", Description = " ", Field = new ItemField() });
+            int index;
+            string result = Interaction.InputBox("请输入编号：");
+            if (result == "") return;
+            if (!int.TryParse(result, out index))
+            {
+                MessageBox.Show("请输入一个数字");
+                return;
+            }
+            if (!editor.Add(index))
+            {
+                MessageBox.Show("请输入合法的编号（编号重复）");
+                return;
+            }
+            editor.Refresh();
+            SelectItem(index);
+        }
+
+        private void SelectItem(int index)
+        {
+            for (int i = 0; i < listBox1.Items.Count; i++)
+                if ((listBox1.Items[i] as IndexedItem).Index == index)
+                    listBox1.SelectedIndex = i;
         }
 
         private void Remove_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(String.Format("确定要删除“{0}”吗？", ((Item)listBox1.SelectedItem).Name),
+            if (MessageBox.Show(String.Format("确定要删除“{0}”吗？", listBox1.SelectedItem),
                 "确认", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+                editor.Remove((listBox1.SelectedItem as IndexedItem).Index);
+                editor.Refresh();
             }
         }
 
         private void Refresh_Click(object sender, EventArgs e)
         {
-            List<Item> list = new List<Item>();
-            foreach (var item in listBox1.Items)
-            {
-                Item i = (Item)item;
-                if (i.Field.ID < 100 || i.Field.ID >= 200) i.Quert = null;
-                else if (i.Quert == null) i.Quert = new ItemQuart();
-                list.Add((Item)item);
-            }
-            list.Sort();
-            listBox1.Items.Clear();
-            listBox1.Items.AddRange(list.ToArray());
+            var sel = listBox1.SelectedItem as IndexedItem;
+            editor.Refresh();
+            if (sel != null)
+                SelectItem(sel.Index);
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
@@ -72,6 +96,23 @@ namespace ED7Editor
             Remove.Visible = listBox1.SelectedItems.Count == 1;
         }
 
+        object clipboard;
+
+        private void Copy_Click(object sender, EventArgs e)
+        {
+            clipboard = propertyGrid1.SelectedObject;
+        }
+
+        private void Paste_Click(object sender, EventArgs e)
+        {
+            editor.CopyTo(clipboard, propertyGrid1.SelectedObject);
+            propertyGrid1.Refresh();
+        }
+
+        private void contextMenuStrip2_Opening(object sender, CancelEventArgs e)
+        {
+            Paste.Enabled = clipboard != null;
+        }
 
     }
 }

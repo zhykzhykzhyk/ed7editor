@@ -9,15 +9,44 @@ using System.Runtime.InteropServices;
 
 namespace ED7Editor
 {
+    public class IndexedItem
+    {
+        public int Index { get; set; }
+        public object Item { get; set; }
+        public override string ToString()
+        {
+            return Item.ToString();
+        }
+    }
+    public class IndexedItem<T> : IndexedItem
+    {
+        public new T Item
+        {
+            get
+            {
+                return (T)base.Item;
+            }
+            set
+            {
+                base.Item = value;
+            }
+        }
+    }
     public abstract class EditorBase<T> : EditorBase where T : class
     {
     }
     public abstract class EditorBase
     {
+        public void Refresh()
+        {
+            Update(this, new EventArgs());
+        }
+        public event EventHandler Update;
         public abstract void Load();
-        public abstract IEnumerable GetList();
-        public abstract void Add(int id);
-        public abstract void Remove(object item);
+        public abstract IEnumerable<IndexedItem> GetList();
+        public abstract bool Add(int id);
+        public abstract bool CopyTo(object src, object dest);
+        public abstract bool Remove(int item);
         public abstract void Save();
         public static string ReadString(Stream stream)
         {
@@ -95,6 +124,10 @@ namespace ED7Editor
                 Environment.Exit(0);
                 throw;
             }
+        }
+        public override string ToString()
+        {
+            return GetType().Name;
         }
     }
 }

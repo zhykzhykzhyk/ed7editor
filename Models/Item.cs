@@ -14,13 +14,18 @@ namespace ED7Editor
     class ItemField
     {
         private ushort id;
-
+        [ReadOnly(true)]
         public ushort ID
         {
             get { return id; }
             set { id = value; }
         }
         private byte type;
+
+        public ItemField Duplicate()
+        {
+            return (ItemField)this.MemberwiseClone();
+        }
 
         public byte Type
         {
@@ -173,7 +178,7 @@ namespace ED7Editor
 
         public override void Load()
         {
-            Dictionary<ushort, Item> Item = new Dictionary<ushort, Item>();
+            SortedDictionary<ushort, Item> Item = new SortedDictionary<ushort, Item>();
             ItemQuart[] quartz = new ItemQuart[200];
             using (var stream = File.OpenRead(EditorBase.GetFile("t_quartz._dt")))
             {
@@ -285,15 +290,13 @@ namespace ED7Editor
                     Item[id].Description = EditorBase.ReadString(stream);
                 }
             }
-            items = Item.Values;
+            items = Item;
         }
-
         int GetLength(SortedList<ushort, Item> list)
         {
             if (list.Count == 0) return 0;
             else return list.Values[list.Count - 1].Field.ID % 100 * 2 + 2;
         }
-
         public override void Save()
         {
             ItemQuart[] quartz = new ItemQuart[200];
@@ -301,7 +304,7 @@ namespace ED7Editor
             SortedList<ushort, Item>[] Item = new SortedList<ushort, Item>[18];
             for (int i = 0; i < Item.Length; i++)
                 Item[i] = new SortedList<ushort, Item>();
-            foreach (Item item in items)
+            foreach (Item item in items.Values)
             {
                 Item[item.Field.ID / 100][item.Field.ID] = item;
             }
@@ -473,30 +476,70 @@ namespace ED7Editor
                 }
             }
         }
-
-        public override void Add(int id)
+        public override bool Add(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                items.Add((ushort)id, new Item
+                {
+                    Description = " ",
+                    Name = " ",
+                    Field = new ItemField { ID = (ushort)id },
+                    Quert = id >= 100 && id < 300 ? new ItemQuart() : null
+                });
+                return true;
+            }
+            catch { return false; }
         }
-
-        public override IEnumerable GetList()
+        public override bool CopyTo(object src, object dest)
+        {
+            Item si, di;
+            try
+            {
+                si = (Item)src;
+                di = (Item)dest;
+            }
+            catch { return false; }
+            di.Name = si.Name;
+            di.Description = si.Description;
+            ushort id = di.Field.ID;
+            di.Field = si.Field.Duplicate();
+            di.Field.ID = id;
+            if (si.Quert != null && di.Quert != null)
+            {
+                di.Quert.Attr = si.Quert.Attr;
+                si.Quert.Cost.CopyTo(di.Quert.Cost, 0);
+                si.Quert.Quart.CopyTo(di.Quert.Quart, 0);
+            }
+            return true;
+        }
+        public override IEnumerable<IndexedItem> GetList()
         {
             if (items == null) Load();
-            return items;
+            List<IndexedItem> list = new List<IndexedItem>();
+            foreach (var v in items) list.Add(new IndexedItem { Index = v.Key, Item = v.Value });
+            return list;
         }
-
-        public override void Remove(object item)
+        public override bool Remove(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return items.Remove((ushort)id);
+            }
+            catch { return false; }
         }
-
-        IEnumerable<Item> items;
+        SortedDictionary<ushort, Item> items;
     }
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
     class ItemQuart
     {
+        public ItemQuart()
+        {
+            Cost = new ushort[8];
+            Quart = new byte[8];
+        }
         private ushort id;
         [Browsable(false)]
         public ushort ID
