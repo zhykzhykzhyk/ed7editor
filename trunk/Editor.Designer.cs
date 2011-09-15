@@ -36,11 +36,14 @@
             this.Remove = new System.Windows.Forms.ToolStripMenuItem();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.process1 = new System.Diagnostics.Process();
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.Copy = new System.Windows.Forms.ToolStripMenuItem();
+            this.Paste = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // listBox1
@@ -63,32 +66,33 @@
             this.Refresh,
             this.Remove});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 70);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // Add
             // 
             this.Add.Name = "Add";
-            this.Add.Size = new System.Drawing.Size(152, 22);
+            this.Add.Size = new System.Drawing.Size(100, 22);
             this.Add.Text = "增加";
             this.Add.Click += new System.EventHandler(this.Add_Click);
             // 
             // Refresh
             // 
             this.Refresh.Name = "Refresh";
-            this.Refresh.Size = new System.Drawing.Size(152, 22);
+            this.Refresh.Size = new System.Drawing.Size(100, 22);
             this.Refresh.Text = "刷新";
             this.Refresh.Click += new System.EventHandler(this.Refresh_Click);
             // 
             // Remove
             // 
             this.Remove.Name = "Remove";
-            this.Remove.Size = new System.Drawing.Size(152, 22);
+            this.Remove.Size = new System.Drawing.Size(100, 22);
             this.Remove.Text = "删除";
             this.Remove.Click += new System.EventHandler(this.Remove_Click);
             // 
             // propertyGrid1
             // 
+            this.propertyGrid1.ContextMenuStrip = this.contextMenuStrip2;
             this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
             this.propertyGrid1.Name = "propertyGrid1";
@@ -112,23 +116,36 @@
             this.splitContainer1.SplitterDistance = 102;
             this.splitContainer1.TabIndex = 2;
             // 
-            // process1
+            // contextMenuStrip2
             // 
-            this.process1.StartInfo.Domain = "";
-            this.process1.StartInfo.LoadUserProfile = false;
-            this.process1.StartInfo.Password = null;
-            this.process1.StartInfo.StandardErrorEncoding = null;
-            this.process1.StartInfo.StandardOutputEncoding = null;
-            this.process1.StartInfo.UserName = "";
-            this.process1.SynchronizingObject = this;
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Copy,
+            this.Paste});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
-            // ItemEditor
+            // Copy
+            // 
+            this.Copy.Name = "Copy";
+            this.Copy.Size = new System.Drawing.Size(152, 22);
+            this.Copy.Text = "复制";
+            this.Copy.Click += new System.EventHandler(this.Copy_Click);
+            // 
+            // Paste
+            // 
+            this.Paste.Name = "Paste";
+            this.Paste.Size = new System.Drawing.Size(152, 22);
+            this.Paste.Text = "粘贴";
+            this.Paste.Click += new System.EventHandler(this.Paste_Click);
+            // 
+            // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(308, 262);
             this.Controls.Add(this.splitContainer1);
-            this.Name = "ItemEditor";
+            this.Name = "Editor";
             this.Text = "Item Editor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ItemEditor_FormClosed);
             this.Load += new System.EventHandler(this.ItemEditor_Load);
@@ -136,6 +153,7 @@
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
+            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -149,7 +167,9 @@
         private System.Windows.Forms.ToolStripMenuItem Add;
         private System.Windows.Forms.ToolStripMenuItem Remove;
         private System.Windows.Forms.ToolStripMenuItem Refresh;
-        private System.Diagnostics.Process process1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ToolStripMenuItem Copy;
+        private System.Windows.Forms.ToolStripMenuItem Paste;
     }
 }
 

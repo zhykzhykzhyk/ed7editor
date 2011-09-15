@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Reflection;
 
 namespace ED7Editor
 {
@@ -25,6 +26,15 @@ namespace ED7Editor
                     Environment.Exit(1);
                 Properties.Settings.Default.ED7Path = fbd.SelectedPath;
                 Properties.Settings.Default.Save();
+            }
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (type.IsSubclassOf(typeof(EditorBase))) try
+                    {
+                        var cons = type.GetConstructor(Type.EmptyTypes);
+                        comboBox1.Items.Add(cons.Invoke(new object[0]));
+                    }
+                    catch { }
             }
             //Hide();
             //new Editor().ShowDialog();
