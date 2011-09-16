@@ -171,7 +171,7 @@ namespace ED7Editor
             byte b;
             List<byte> a = new List<byte>();
             while ((b = (byte)stream.ReadByte()) != 0) a.Add(b);
-            string s = Encoding.Default.GetString(a.ToArray());
+            string s = Helper.Encoding.GetString(a.ToArray());
             return s;
         }
 
@@ -220,6 +220,11 @@ namespace ED7Editor
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             propertyGrid1.SelectedObject = listBox1.SelectedItem;
+        }
+
+        private void MagicEditor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
         }
     }
 }
