@@ -166,8 +166,8 @@ namespace ED7Editor
         {
             writer.Write(item.Field.ID);
             writer.Write((ushort)0);
-            byte[] s1 = Encoding.Default.GetBytes(item.Name);
-            byte[] s2 = Encoding.Default.GetBytes(item.Description);
+            byte[] s1 = Helper.Encoding.GetBytes(item.Name);
+            byte[] s2 = Helper.Encoding.GetBytes(item.Description);
             writer.Write((ushort)(writer.BaseStream.Position + 4));
             writer.Write((ushort)(writer.BaseStream.Position + 3 + s1.Length));
             writer.Write(s1);
@@ -175,7 +175,11 @@ namespace ED7Editor
             writer.Write(s2);
             writer.Write((byte)0);
         }
-
+        public override object GetById(int id)
+        {
+            lock (this) if (items == null) Load();
+            return items.ContainsKey((ushort)id) ? items[(ushort)id] : null;
+        }
         public override void Load()
         {
             SortedDictionary<ushort, Item> Item = new SortedDictionary<ushort, Item>();
@@ -299,6 +303,7 @@ namespace ED7Editor
         }
         public override void Save()
         {
+            if (items == null) return;
             ItemQuart[] quartz = new ItemQuart[200];
             for (int i = 0; i < quartz.Length; i++) quartz[i] = new ItemQuart { ID = (ushort)i };
             SortedList<ushort, Item>[] Item = new SortedList<ushort, Item>[18];
@@ -480,6 +485,9 @@ namespace ED7Editor
         {
             try
             {
+                if (id < 0) return false;
+                if (id >= 1700) return false;
+                if (id == 999) return false;
                 items.Add((ushort)id, new Item
                 {
                     Description = " ",
@@ -515,7 +523,7 @@ namespace ED7Editor
         }
         public override IEnumerable<IndexedItem> GetList()
         {
-            if (items == null) Load();
+            lock(this) if (items == null) Load();
             List<IndexedItem> list = new List<IndexedItem>();
             foreach (var v in items) list.Add(new IndexedItem { Index = v.Key, Item = v.Value });
             return list;

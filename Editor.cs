@@ -22,11 +22,14 @@ namespace ED7Editor
 
         void editor_Update(object sender, EventArgs e)
         {
+            var sel = listBox1.SelectedItem as IndexedItem;
             listBox1.Items.Clear();
             foreach (var item in editor.GetList())
             {
                 listBox1.Items.Add(item);
             }
+            if (sel != null)
+                SelectItem(sel.Index);
         }
 
         EditorBase editor;
@@ -62,6 +65,7 @@ namespace ED7Editor
                 MessageBox.Show("请输入合法的编号（编号重复）");
                 return;
             }
+            Helper.MakeDirty();
             editor.Refresh();
             SelectItem(index);
         }
@@ -70,25 +74,25 @@ namespace ED7Editor
         {
             for (int i = 0; i < listBox1.Items.Count; i++)
                 if ((listBox1.Items[i] as IndexedItem).Index == index)
+                {
                     listBox1.SelectedIndex = i;
+                }
         }
 
         private void Remove_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(String.Format("确定要删除“{0}”吗？", listBox1.SelectedItem),
                 "确认", MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
-                editor.Remove((listBox1.SelectedItem as IndexedItem).Index);
-                editor.Refresh();
-            }
+                if (editor.Remove((listBox1.SelectedItem as IndexedItem).Index))
+                {
+                    Helper.MakeDirty();
+                    editor.Refresh();
+                }
         }
 
         private void Refresh_Click(object sender, EventArgs e)
         {
-            var sel = listBox1.SelectedItem as IndexedItem;
             editor.Refresh();
-            if (sel != null)
-                SelectItem(sel.Index);
         }
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
@@ -105,13 +109,24 @@ namespace ED7Editor
 
         private void Paste_Click(object sender, EventArgs e)
         {
-            editor.CopyTo(clipboard, propertyGrid1.SelectedObject);
+            if (editor.CopyTo(clipboard, propertyGrid1.SelectedObject))
+                Helper.MakeDirty();
             propertyGrid1.Refresh();
         }
 
         private void contextMenuStrip2_Opening(object sender, CancelEventArgs e)
         {
             Paste.Enabled = clipboard != null;
+        }
+
+        private void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            Helper.MakeDirty();
+        }
+
+        private void Editor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
         }
 
     }

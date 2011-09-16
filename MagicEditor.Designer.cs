@@ -115,6 +115,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "MagicEditor";
             this.Text = "MagicEditor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MagicEditor_FormClosing);
             this.Load += new System.EventHandler(this.MagicEditor_Load);
             this.contextMenuStrip1.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);

@@ -27,39 +27,41 @@ namespace ED7Editor
                 Properties.Settings.Default.ED7Path = fbd.SelectedPath;
                 Properties.Settings.Default.Save();
             }
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            foreach (var type in Helper.Editors)
             {
-                if (type.IsSubclassOf(typeof(EditorBase))) try
-                    {
-                        var cons = type.GetConstructor(Type.EmptyTypes);
-                        comboBox1.Items.Add(cons.Invoke(new object[0]));
-                    }
-                    catch { }
+                comboBox1.Items.Add(type);
             }
+            comboBox1.SelectedIndex = 0;
             //Hide();
             //new Editor().ShowDialog();
             //Close();
         }
 
+        void WarnDirty(object s, CancelEventArgs e)
+        {
+            var result = MessageBox.Show("已更改，是否保存？", "警告", MessageBoxButtons.YesNoCancel);
+            e.Cancel = result == DialogResult.Cancel;
+            if (result == DialogResult.Yes) Helper.Save();
+        }
+        
         private void button1_Click(object sender, EventArgs e)
         {
-            Hide();
-            new Editor(itemEditor).ShowDialog();
-            Show();
+            Helper.Load(WarnDirty);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Hide();
-            new MagicEditor().ShowDialog();
-            Close();
+            new Editor((EditorBase)comboBox1.SelectedItem).Show();
         }
-
-        ItemEditor itemEditor = new ItemEditor();
 
         private void button3_Click(object sender, EventArgs e)
         {
-            itemEditor.Save();
+            Helper.Save();
+        }
+
+        private void Loader_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = Helper.CheckDirty(WarnDirty);
         }
     }
 }

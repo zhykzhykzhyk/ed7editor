@@ -98,6 +98,7 @@
             this.propertyGrid1.Name = "propertyGrid1";
             this.propertyGrid1.Size = new System.Drawing.Size(202, 262);
             this.propertyGrid1.TabIndex = 1;
+            this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
             // 
             // splitContainer1
             // 
@@ -122,7 +123,7 @@
             this.Copy,
             this.Paste});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 48);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // Copy
@@ -147,6 +148,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "Editor";
             this.Text = "Item Editor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Editor_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ItemEditor_FormClosed);
             this.Load += new System.EventHandler(this.ItemEditor_Load);
             this.contextMenuStrip1.ResumeLayout(false);
