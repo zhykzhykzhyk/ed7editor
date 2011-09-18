@@ -48,6 +48,7 @@ namespace ED7Editor
         public event EventHandler Update;
         public abstract void Load();
         public abstract IEnumerable<IndexedItem> GetList();
+        public abstract IEnumerable<SelectorItem> GetSelector();
         public abstract object GetById(int id);
         public abstract bool Add(int id);
         public abstract bool CopyTo(object src, object dest);
@@ -68,7 +69,8 @@ namespace ED7Editor
             var handle = GCHandle.Alloc(buf, GCHandleType.Pinned);
             try
             {
-                return (T)Marshal.PtrToStructure(Marshal.UnsafeAddrOfPinnedArrayElement(buf, 0), typeof(T));
+                IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(buf, 0);
+                return (T)Marshal.PtrToStructure(ptr, typeof(T));
             }
             finally
             {
@@ -132,7 +134,16 @@ namespace ED7Editor
         }
         public override string ToString()
         {
-            return GetType().Name;
+            Type type = GetType();
+            try
+            {
+                return ((DisplayNameAttribute)type
+                    .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+            }
+            catch
+            {
+                return type.Name;
+            }
         }
     }
     public static class Helper

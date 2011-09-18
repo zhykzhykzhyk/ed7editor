@@ -6,6 +6,9 @@ using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Drawing.Design;
+using System.Windows.Forms.Design;
+using System.Windows.Forms;
 
 namespace ED7Editor
 {
@@ -160,6 +163,7 @@ namespace ED7Editor
         }
     }
 
+    [DisplayName("Item Editor")]
     class ItemEditor : EditorBase<Item>
     {
         private void WriteItemStrings(BinaryWriter writer, Item item)
@@ -175,9 +179,39 @@ namespace ED7Editor
             writer.Write(s2);
             writer.Write((byte)0);
         }
+        public readonly static char[] QuartzName = "地水火风时空幻".ToCharArray();
+        public override IEnumerable<SelectorItem> GetSelector()
+        {
+            SortedDictionary<int, SelectorItem> items = new SortedDictionary<int, SelectorItem>();
+            foreach (var item in this.items)
+            {
+                items.Add(item.Key, new SelectorItem
+                {
+                    ID = item.Key,
+                    Name = item.Value.Name,
+                    Description = item.Value.Description.Replace(@"\n", "\r\n")
+                });
+            }
+            for (int i = 0; i < QuartzName.Length; i++)
+            {
+                items.Add(i + 990, new SelectorItem
+                {
+                    ID = i + 990,
+                    Name = QuartzName[i] + "之耀晶片",
+                    Description = "改造用"
+                });
+            }
+            return items.Values;
+        }
         public override object GetById(int id)
         {
             lock (this) if (items == null) Load();
+            var x = id - 990;
+            if (x >= 0 && x < QuartzName.Length) return new Item
+            {
+                Name = QuartzName[x] + "之耀晶片",
+                Description = "改造用"
+            };
             return items.ContainsKey((ushort)id) ? items[(ushort)id] : null;
         }
         public override void Load()
@@ -592,6 +626,128 @@ namespace ED7Editor
         public int CompareTo(Item other)
         {
             return Field.ID - other.Field.ID;
+        }
+    }
+
+    [Editor(typeof(ItemReferenceEditor), typeof(UITypeEditor))]
+    [StructLayout(LayoutKind.Sequential)]
+    struct ItemReference
+    {
+        public override string ToString()
+        {
+            return Name;
+        }
+        [Editor(typeof(ItemIDSelector), typeof(UITypeEditor))]
+        public ushort ID { get; set; }
+        [Browsable(false)]
+        public Item Item
+        {
+            get
+            {
+                return (Item)Helper.GetEditorByType(typeof(ItemEditor)).GetById(ID);
+            }
+        }
+        public string Name
+        {
+            get
+            {
+                return Item != null ? Item.Name : null;
+            }
+        }
+        public string Description
+        {
+            get
+            {
+                return Item != null ? Item.Description : null;
+            }
+        }
+    }
+    //[TypeConverter(typeof(ExpandableObjectConverter))]
+    [TypeConverter(typeof(ItemCountConverter))]
+    [StructLayout(LayoutKind.Sequential)]
+    struct ItemCount
+    {
+        ItemReference item;
+        public ItemReference Item
+        {
+            get { return item; }
+            set { item = value; }
+        }
+        public ushort Count { get; set; }
+    }
+
+    class ItemCountConverter : TypeConverter
+    {
+        class X : SimplePropertyDescriptor
+        {
+            public X(string name, PropertyDescriptor instance, object value) :
+                base(typeof(ItemCount), name, typeof(ItemCount).GetProperty(name).PropertyType)
+            {
+                PN = Name;
+                i = instance;
+                v = value;
+            }
+            PropertyDescriptor i;
+            object v;
+            public override void SetValue(object component, object value)
+            {
+                ItemReference[] a = new ItemReference[5];
+                a[3].ID = 8;
+                var x = i.GetValue(v);
+                typeof(ItemCount).GetProperty(PN).SetValue(x, value, new object[0]);
+                i.SetValue(v, x);
+            }
+            public override object GetValue(object component)
+            {
+                return typeof(ItemCount).GetProperty(PN).GetValue(component, new object[0]);
+            }
+            public string PN { get; set; }
+        }
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
+        {
+            context.PropertyDescriptor.SetValue(context.Instance, value);
+            return new PropertyDescriptorCollection(new[] { new X("Item", context.PropertyDescriptor, context.Instance),
+                new X("Count", context.PropertyDescriptor, context.Instance) });
+        }
+
+        public override bool GetPropertiesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+    }
+    
+    class ItemReferenceEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
+            var id = ((ItemReference)value).ID;
+            selector.SetSelect(id);
+            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                return value = new ItemReference { ID = (ushort)selector.Result };
+            return value;
+        }
+    }
+    class ItemIDSelector : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
+            var id = (ushort)value;
+            selector.SetSelect(id);
+            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                return (ushort)selector.Result;
+            return value;
         }
     }
 }

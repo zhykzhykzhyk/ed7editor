@@ -17,6 +17,7 @@ namespace ED7Editor
         {
             this.editor = editor;
             InitializeComponent();
+            Text = editor.ToString();
             this.editor.Update += new EventHandler(editor_Update);
         }
 
