@@ -12,19 +12,25 @@
     <AssemblyName>ED7Editor</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <PublishUrl>ftp://5460.5l5l.info/</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>3</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <InstallUrl>http://5460.5l5l.info/</InstallUrl>
+    <UpdateUrl>http://5460.5l5l.info/</UpdateUrl>
+    <TargetCulture>zh-Hans</TargetCulture>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <DisallowUrlActivation>true</DisallowUrlActivation>
+    <ApplicationRevision>5</ApplicationRevision>
+    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
@@ -49,16 +55,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>DCF135C62BAD6E0722AFEC41A612F76B490B2312</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>C4C79AEA8F4AC06C0158178FC23437ECD629CA1D</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ED7Editor_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ED7Editor_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
@@ -92,9 +101,17 @@
       <DependentUpon>MagicEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\SelectorItem.cs" />
     <Compile Include="Models\Shop.cs" />
+    <Compile Include="Models\Trade.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Selector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Selector.Designer.cs">
+      <DependentUpon>Selector.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
@@ -112,122 +129,127 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Selector.resx">
+      <DependentUpon>Selector.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="org\t_bgm._dt">
+    <None Include="ED7Editor_1_TemporaryKey.pfx" />
+    <Content Include="org\t_bgm._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book00._dt">
+    </Content>
+    <Content Include="org\t_book00._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book01._dt">
+    </Content>
+    <Content Include="org\t_book01._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book02._dt">
+    </Content>
+    <Content Include="org\t_book02._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book03._dt">
+    </Content>
+    <Content Include="org\t_book03._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book04._dt">
+    </Content>
+    <Content Include="org\t_book04._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_book05._dt">
+    </Content>
+    <Content Include="org\t_book05._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_btrev._dt">
+    </Content>
+    <Content Include="org\t_btrev._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_chrid._dt">
+    </Content>
+    <Content Include="org\t_chrid._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_cook._dt">
+    </Content>
+    <Content Include="org\t_cook._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_crfget._dt">
+    </Content>
+    <Content Include="org\t_crfget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_dbmon._dt">
+    </Content>
+    <Content Include="org\t_dbmon._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_exchr._dt">
+    </Content>
+    <Content Include="org\t_exchr._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_exmov._dt">
+    </Content>
+    <Content Include="org\t_exmov._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_exvis._dt">
+    </Content>
+    <Content Include="org\t_exvis._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_fish._dt">
+    </Content>
+    <Content Include="org\t_fish._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_item._dt">
+    </Content>
+    <Content Include="org\t_item._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_item2._dt">
+    </Content>
+    <Content Include="org\t_item2._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_ittxt._dt">
+    </Content>
+    <Content Include="org\t_ittxt._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_ittxt2._dt">
+    </Content>
+    <Content Include="org\t_ittxt2._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_magic._dt">
+    </Content>
+    <Content Include="org\t_magic._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_magqrt._dt">
+    </Content>
+    <Content Include="org\t_magqrt._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_memo._dt">
+    </Content>
+    <Content Include="org\t_memo._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_mgame._dt">
+    </Content>
+    <Content Include="org\t_mgame._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_mons._dt">
+    </Content>
+    <Content Include="org\t_mons._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_msas._dt">
+    </Content>
+    <Content Include="org\t_msas._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_name._dt">
+    </Content>
+    <Content Include="org\t_name._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_orb._dt">
+    </Content>
+    <Content Include="org\t_orb._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_quartz._dt">
+    </Content>
+    <Content Include="org\t_quartz._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_quest._dt">
+    </Content>
+    <Content Include="org\t_quest._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_record._dt">
+    </Content>
+    <Content Include="org\t_record._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_se._dt">
+    </Content>
+    <Content Include="org\t_se._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_shop._dt">
+    </Content>
+    <Content Include="org\t_shop._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_sltget._dt">
+    </Content>
+    <Content Include="org\t_sltget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_status._dt">
+    </Content>
+    <Content Include="org\t_status._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_town._dt">
+    </Content>
+    <Content Include="org\t_town._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_trade._dt">
+    </Content>
+    <Content Include="org\t_trade._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="org\t_world._dt">
+    </Content>
+    <Content Include="org\t_world._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

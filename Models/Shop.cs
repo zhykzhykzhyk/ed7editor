@@ -10,8 +10,13 @@ using System.IO;
 
 namespace ED7Editor
 {
+    [DisplayName("Shop Editor")]
     class ShopEditor : EditorBase<Shop>
     {
+        public override IEnumerable<SelectorItem> GetSelector()
+        {
+            throw new NotImplementedException();
+        }
         public override bool Add(int id)
         {
             return false;
@@ -130,33 +135,6 @@ namespace ED7Editor
         }
         public ushort Items;
         public ushort Name;
-    }
-
-    class ItemReference
-    {
-        public ushort ID { get; set; }
-        [Browsable(false)]
-        public Item Item
-        {
-            get
-            {
-                return (Item)Helper.GetEditorByType(typeof(ItemEditor)).GetById(ID);
-            }
-        }
-        public string Name
-        {
-            get
-            {
-                return Item != null ? Item.Name : null;
-            }
-        }
-        public string Description
-        {
-            get
-            {
-                return Item != null ? Item.Description : null;
-            }
-        }
     }
 
     class Shop
