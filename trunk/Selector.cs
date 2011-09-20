@@ -26,8 +26,11 @@ namespace ED7Editor
 
         public int Result { get; private set; }
 
+        int? initValue = null;
+
         public void SetSelect(int id)
         {
+            initValue = id;
             for (int i = 0; i < listBox1.Items.Count; i++)
                 if ((listBox1.Items[i] as SelectorItem).ID == id)
                     listBox1.SelectedIndex = i;
@@ -35,6 +38,7 @@ namespace ED7Editor
 
         private void btnOK_Click(object sender, EventArgs e)
         {
+            if (Result == initValue) DialogResult = DialogResult.Cancel;
             DialogResult = DialogResult.OK;
         }
 
