@@ -18,8 +18,10 @@ namespace ED7Editor
             this.editor = editor;
             InitializeComponent();
             Text = editor.ToString();
-            this.editor.Update += new EventHandler(editor_Update);
+            this.editor.Update += euh = new EventHandler(editor_Update);
         }
+
+        EventHandler euh;
 
         void editor_Update(object sender, EventArgs e)
         {
@@ -49,6 +51,7 @@ namespace ED7Editor
 
         private void ItemEditor_FormClosed(object sender, FormClosedEventArgs e)
         {
+            this.editor.Update -= euh;
         }
 
         private void Add_Click(object sender, EventArgs e)

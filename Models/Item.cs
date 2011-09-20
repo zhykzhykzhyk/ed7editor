@@ -9,6 +9,7 @@ using System.IO;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace ED7Editor
 {
@@ -631,7 +632,7 @@ namespace ED7Editor
 
     [Editor(typeof(ItemReferenceEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential)]
-    struct ItemReference
+    class ItemReference
     {
         public override string ToString()
         {
@@ -663,7 +664,7 @@ namespace ED7Editor
         }
     }
     //[TypeConverter(typeof(ExpandableObjectConverter))]
-    [TypeConverter(typeof(ItemCountConverter))]
+    [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
     struct ItemCount
     {
@@ -675,39 +676,49 @@ namespace ED7Editor
         }
         public ushort Count { get; set; }
     }
-
-    class ItemCountConverter : TypeConverter
+    class ValueTypeConverter : TypeConverter
     {
-        class X : SimplePropertyDescriptor
+        class ValueTypePropertyDescriptor : SimplePropertyDescriptor
         {
-            public X(string name, PropertyDescriptor instance, object value) :
-                base(typeof(ItemCount), name, typeof(ItemCount).GetProperty(name).PropertyType)
+            public ValueTypePropertyDescriptor(PropertyInfo property, ITypeDescriptorContext context,
+                IEnumerable<Attribute> attributes) :
+                base(property.ReflectedType, property.Name, property.PropertyType,
+                GetAttributes(property,attributes))
             {
-                PN = Name;
-                i = instance;
-                v = value;
+                this.property = property;
+                this.context = context;
             }
-            PropertyDescriptor i;
-            object v;
+            static Attribute[] GetAttributes(PropertyInfo property, IEnumerable<Attribute> attributes)
+            {
+                var list = new List<Attribute>(attributes);
+                foreach (var attr in property.GetCustomAttributes(true))
+                {
+                    if (attr is Attribute) list.Add((Attribute)attr);
+                }
+                return list.ToArray();
+            }
+            PropertyInfo property;
+            ITypeDescriptorContext context;
             public override void SetValue(object component, object value)
             {
-                ItemReference[] a = new ItemReference[5];
-                a[3].ID = 8;
-                var x = i.GetValue(v);
-                typeof(ItemCount).GetProperty(PN).SetValue(x, value, new object[0]);
-                i.SetValue(v, x);
+                property.SetValue(component, value, new object[0]);
+                context.PropertyDescriptor.SetValue(context.Instance, component);
             }
             public override object GetValue(object component)
             {
-                return typeof(ItemCount).GetProperty(PN).GetValue(component, new object[0]);
+                return property.GetValue(component, new object[0]);
             }
-            public string PN { get; set; }
         }
-        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object value, Attribute[] attributes)
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context,
+            object value, Attribute[] attributes)
         {
-            context.PropertyDescriptor.SetValue(context.Instance, value);
-            return new PropertyDescriptorCollection(new[] { new X("Item", context.PropertyDescriptor, context.Instance),
-                new X("Count", context.PropertyDescriptor, context.Instance) });
+            List<PropertyDescriptor> list = new List<PropertyDescriptor>();
+            foreach (var property in context.PropertyDescriptor.PropertyType.GetProperties())
+            {
+                var descriptor = new ValueTypePropertyDescriptor(property, context, attributes);
+                if (descriptor.IsBrowsable) list.Add(descriptor);
+            }
+            return new PropertyDescriptorCollection(list.ToArray());
         }
 
         public override bool GetPropertiesSupported(ITypeDescriptorContext context)
@@ -715,7 +726,6 @@ namespace ED7Editor
             return true;
         }
     }
-    
     class ItemReferenceEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -723,7 +733,8 @@ namespace ED7Editor
             return UITypeEditorEditStyle.Modal;
         }
 
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
         {
             var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
             var id = ((ItemReference)value).ID;
@@ -740,7 +751,8 @@ namespace ED7Editor
             return UITypeEditorEditStyle.Modal;
         }
 
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
         {
             var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
             var id = (ushort)value;
