@@ -32,6 +32,7 @@ namespace ED7Editor
                 comboBox1.Items.Add(type);
             }
             comboBox1.SelectedIndex = 0;
+            Helper.Load(WarnDirty);
             //Hide();
             //new Editor().ShowDialog();
             //Close();

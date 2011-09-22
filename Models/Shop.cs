@@ -131,7 +131,7 @@ namespace ED7Editor
         public byte[] Exchange
         {
             get { return exchange; }
-            set { exchange = value; }
+            internal set { exchange = value; }
         }
         public ushort Items;
         public ushort Name;

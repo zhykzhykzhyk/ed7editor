@@ -32,18 +32,18 @@
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.Add = new System.Windows.Forms.ToolStripMenuItem();
-            this.Refresh = new System.Windows.Forms.ToolStripMenuItem();
+            this.RefreshList = new System.Windows.Forms.ToolStripMenuItem();
             this.Remove = new System.Windows.Forms.ToolStripMenuItem();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.Copy = new System.Windows.Forms.ToolStripMenuItem();
             this.Paste = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.contextMenuStrip1.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.contextMenuStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // listBox1
@@ -63,7 +63,7 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Add,
-            this.Refresh,
+            this.RefreshList,
             this.Remove});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(101, 70);
@@ -76,12 +76,12 @@
             this.Add.Text = "增加";
             this.Add.Click += new System.EventHandler(this.Add_Click);
             // 
-            // Refresh
+            // RefreshList
             // 
-            this.Refresh.Name = "Refresh";
-            this.Refresh.Size = new System.Drawing.Size(100, 22);
-            this.Refresh.Text = "刷新";
-            this.Refresh.Click += new System.EventHandler(this.Refresh_Click);
+            this.RefreshList.Name = "RefreshList";
+            this.RefreshList.Size = new System.Drawing.Size(100, 22);
+            this.RefreshList.Text = "刷新";
+            this.RefreshList.Click += new System.EventHandler(this.Refresh_Click);
             // 
             // Remove
             // 
@@ -100,6 +100,29 @@
             this.propertyGrid1.TabIndex = 1;
             this.propertyGrid1.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid1_PropertyValueChanged);
             // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Copy,
+            this.Paste});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 48);
+            this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
+            // 
+            // Copy
+            // 
+            this.Copy.Name = "Copy";
+            this.Copy.Size = new System.Drawing.Size(100, 22);
+            this.Copy.Text = "复制";
+            this.Copy.Click += new System.EventHandler(this.Copy_Click);
+            // 
+            // Paste
+            // 
+            this.Paste.Name = "Paste";
+            this.Paste.Size = new System.Drawing.Size(100, 22);
+            this.Paste.Text = "粘贴";
+            this.Paste.Click += new System.EventHandler(this.Paste_Click);
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -117,29 +140,6 @@
             this.splitContainer1.SplitterDistance = 102;
             this.splitContainer1.TabIndex = 2;
             // 
-            // contextMenuStrip2
-            // 
-            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Copy,
-            this.Paste});
-            this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(101, 48);
-            this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
-            // 
-            // Copy
-            // 
-            this.Copy.Name = "Copy";
-            this.Copy.Size = new System.Drawing.Size(152, 22);
-            this.Copy.Text = "复制";
-            this.Copy.Click += new System.EventHandler(this.Copy_Click);
-            // 
-            // Paste
-            // 
-            this.Paste.Name = "Paste";
-            this.Paste.Size = new System.Drawing.Size(152, 22);
-            this.Paste.Text = "粘贴";
-            this.Paste.Click += new System.EventHandler(this.Paste_Click);
-            // 
             // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -152,10 +152,10 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ItemEditor_FormClosed);
             this.Load += new System.EventHandler(this.ItemEditor_Load);
             this.contextMenuStrip1.ResumeLayout(false);
+            this.contextMenuStrip2.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
-            this.contextMenuStrip2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -168,7 +168,7 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem Add;
         private System.Windows.Forms.ToolStripMenuItem Remove;
-        private System.Windows.Forms.ToolStripMenuItem Refresh;
+        private System.Windows.Forms.ToolStripMenuItem RefreshList;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem Copy;
         private System.Windows.Forms.ToolStripMenuItem Paste;
