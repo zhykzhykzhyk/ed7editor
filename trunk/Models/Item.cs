@@ -218,13 +218,13 @@ namespace ED7Editor
         public override void Load()
         {
             SortedDictionary<ushort, Item> Item = new SortedDictionary<ushort, Item>();
-            ItemQuart[] quartz = new ItemQuart[200];
+            ItemQuartz[] quartz = new ItemQuartz[200];
             using (var stream = File.OpenRead(EditorBase.GetFile("t_quartz._dt")))
             {
                 int i = 0;
                 while (stream.Position < stream.Length)
                 {
-                    quartz[i++] = ReadStrcuture<ItemQuart>(stream);
+                    quartz[i++] = ReadStrcuture<ItemQuartz>(stream);
                 }
             }
             using (var stream = File.OpenRead(EditorBase.GetFile("t_item._dt")))
@@ -248,7 +248,7 @@ namespace ED7Editor
                     item.Field = ReadStrcuture<ItemField>(stream);
                     if (item.Field.ID >= 100 && item.Field.ID < 300)
                     {
-                        item.Quert = quartz[item.Field.ID - 100];
+                        item.Quartz = quartz[item.Field.ID - 100];
                     }
                     Item[item.Field.ID] = item;
                 }
@@ -339,8 +339,8 @@ namespace ED7Editor
         public override void Save()
         {
             if (items == null) return;
-            ItemQuart[] quartz = new ItemQuart[200];
-            for (int i = 0; i < quartz.Length; i++) quartz[i] = new ItemQuart { ID = (ushort)i };
+            ItemQuartz[] quartz = new ItemQuartz[200];
+            for (int i = 0; i < quartz.Length; i++) quartz[i] = new ItemQuartz { ID = (ushort)i };
             SortedList<ushort, Item>[] Item = new SortedList<ushort, Item>[18];
             for (int i = 0; i < Item.Length; i++)
                 Item[i] = new SortedList<ushort, Item>();
@@ -350,13 +350,13 @@ namespace ED7Editor
             }
             foreach (Item item in Item[1].Values)
             {
-                item.Quert.ID = (ushort)(item.Field.ID - 100);
-                quartz[item.Quert.ID] = item.Quert;
+                item.Quartz.ID = (ushort)(item.Field.ID - 100);
+                quartz[item.Quartz.ID] = item.Quartz;
             }
             foreach (Item item in Item[2].Values)
             {
-                item.Quert.ID = (ushort)(item.Field.ID - 100);
-                quartz[item.Quert.ID] = item.Quert;
+                item.Quartz.ID = (ushort)(item.Field.ID - 100);
+                quartz[item.Quartz.ID] = item.Quartz;
             }
             using (var stream = File.OpenWrite(EditorBase.GetFile("t_quartz._dt")))
             {
@@ -528,7 +528,7 @@ namespace ED7Editor
                     Description = " ",
                     Name = " ",
                     Field = new ItemField { ID = (ushort)id },
-                    Quert = id >= 100 && id < 300 ? new ItemQuart() : null
+                    Quartz = id >= 100 && id < 300 ? new ItemQuartz() : null
                 });
                 return true;
             }
@@ -548,11 +548,11 @@ namespace ED7Editor
             ushort id = di.Field.ID;
             di.Field = si.Field.Duplicate();
             di.Field.ID = id;
-            if (si.Quert != null && di.Quert != null)
+            if (si.Quartz != null && di.Quartz != null)
             {
-                di.Quert.Attr = si.Quert.Attr;
-                si.Quert.Cost.CopyTo(di.Quert.Cost, 0);
-                si.Quert.Quart.CopyTo(di.Quert.Quart, 0);
+                di.Quartz.Attr = si.Quartz.Attr;
+                si.Quartz.Cost.CopyTo(di.Quartz.Cost, 0);
+                si.Quartz.Quartz.CopyTo(di.Quartz.Quartz, 0);
             }
             return true;
         }
@@ -576,12 +576,12 @@ namespace ED7Editor
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
-    class ItemQuart
+    class ItemQuartz
     {
-        public ItemQuart()
+        public ItemQuartz()
         {
             Cost = new ushort[8];
-            Quart = new byte[8];
+            Quartz = new byte[8];
         }
         private ushort id;
         [Browsable(false)]
@@ -602,14 +602,14 @@ namespace ED7Editor
         public ushort[] Cost
         {
             get { return cost; }
-            set { cost = value; }
+            internal set { cost = value; }
         }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        private byte[] quart;
-        public byte[] Quart
+        private byte[] quartz;
+        public byte[] Quartz
         {
-            get { return quart; }
-            set { quart = value; }
+            get { return quartz; }
+            internal set { quartz = value; }
         }
     }
 
@@ -617,7 +617,7 @@ namespace ED7Editor
     {
         public ItemField Field { get; set; }
         public string Name { get; set; }
-        public ItemQuart Quert { get; set; }
+        public ItemQuartz Quartz { get; set; }
         public string Description { get; set; }
         public override string ToString()
         {

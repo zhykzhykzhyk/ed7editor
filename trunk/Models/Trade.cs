@@ -109,7 +109,7 @@ namespace ED7Editor
         public ItemCount[] Source
         {
             get { return source; }
-            set { source = value; }
+            internal set { source = value; }
         }
 
         public override string ToString()
