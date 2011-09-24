@@ -254,7 +254,16 @@ namespace ED7Editor
         }
         public override IEnumerable<SelectorItem> GetSelector()
         {
-            throw new NotImplementedException();
+            List<SelectorItem> items = new List<SelectorItem>();
+            for (int i = 0; i < magics.Length; i++)
+                if (magics[i] != null)
+                    items.Add(new SelectorItem
+                    {
+                        ID = i,
+                        Name = magics[i].Name,
+                        Description = magics[i].Description.Replace(@"\n", "\r\n")
+                    });
+            return items;
         }
         Magic[] magics;
         public override void Load()
@@ -341,6 +350,75 @@ namespace ED7Editor
                     stream.Position = pos;
                 }
             }
+        }
+    }
+    class MagicReferenceEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
+        {
+            var selector = new Selector(Helper.GetEditorByType(typeof(MagicEditor)));
+            var id = ((MagicReference)value).ID;
+            selector.SetSelect(id);
+            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                return value = new MagicReference { ID = (ushort)selector.Result };
+            return value;
+        }
+    }
+    [Editor(typeof(MagicReferenceEditor), typeof(UITypeEditor))]
+    [StructLayout(LayoutKind.Sequential)]
+    public class MagicReference
+    {
+        public override string ToString()
+        {
+            return Name;
+        }
+        [Editor(typeof(ItemIDSelector), typeof(UITypeEditor))]
+        public ushort ID { get; set; }
+        [Browsable(false)]
+        public Magic Magic
+        {
+            get
+            {
+                return (Magic)Helper.GetEditorByType(typeof(MagicEditor)).GetById(ID);
+            }
+        }
+        public string Name
+        {
+            get
+            {
+                return Magic != null ? Magic.Name : null;
+            }
+        }
+        public string Description
+        {
+            get
+            {
+                return Magic != null ? Magic.Description : null;
+            }
+        }
+    }
+    public class MagicIDSelector : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
+        {
+            var selector = new Selector(Helper.GetEditorByType(typeof(MagicEditor)));
+            var id = (ushort)value;
+            selector.SetSelect(id);
+            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                return (ushort)selector.Result;
+            return value;
         }
     }
 }

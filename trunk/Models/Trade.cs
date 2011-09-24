@@ -89,6 +89,11 @@ namespace ED7Editor
     [StructLayout(LayoutKind.Sequential)]
     class TradeField
     {
+        TradeField()
+        {
+            target = new ItemReference();
+            source = new ItemCount[4];
+        }
         private ushort id;
 
         public ushort ID
