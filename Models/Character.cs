@@ -180,6 +180,8 @@ namespace ED7Editor
 
         SortedDictionary<ushort, Character> characters;
 
+        const int MainCharacter = 10;
+
         public override void Load()
         {
             SortedDictionary<ushort, Character> characters = new SortedDictionary<ushort, Character>();
@@ -288,7 +290,58 @@ namespace ED7Editor
 
         public override void Save()
         {
-            return;
+            using (var stream = File.OpenWrite(GetFile("t_orb._dt")))
+            using (var writer = new BinaryWriter(stream))
+            {
+                long epos = (MainCharacter + 1) * 2;
+                for (ushort i = 0; i < MainCharacter;i++){
+                    writer.Write((ushort)epos);
+                    long p = stream.Position;
+                    stream.Position=epos;
+                    characters[i].Orb.Field.Length=(byte)characters[i].Orb.Lines.Count;
+                    WriteStruct(stream, characters[i].Orb.Field);
+                    foreach(var line in characters[i].Orb.Lines)
+                        WriteStruct(stream, line);
+                    unchecked { writer.Write((ushort)-1); }
+                    epos=stream.Position;
+                    stream.Position = p;
+                }
+                unchecked { writer.Write((ushort)-1); }
+            }
+            using (var stream = File.OpenWrite(GetFile("t_crfget._dt")))
+            using (var writer = new BinaryWriter(stream))
+            {
+                long epos = (MainCharacter + 1) * 2;
+                for (ushort i = 0; i < MainCharacter; i++)
+                {
+                    writer.Write((ushort)epos);
+                    long p = stream.Position;
+                    stream.Position = epos;
+                    foreach (var craft in characters[i].Crafts)
+                        WriteStruct(stream, craft);
+                    unchecked { writer.Write((uint)-1); }
+                    epos = stream.Position;
+                    stream.Position = p;
+                }
+                unchecked { writer.Write((ushort)-1); }
+            }
+            using (var stream = File.OpenWrite(GetFile("t_sltget._dt")))
+            using (var writer = new BinaryWriter(stream))
+            {
+                long epos = (MainCharacter + 1) * 2;
+                for (ushort i = 0; i < MainCharacter; i++)
+                {
+                    writer.Write((ushort)epos);
+                    long p = stream.Position;
+                    stream.Position = epos;
+                    foreach(var slot in characters[i].Slots)
+                        WriteStruct(stream, slot);
+                    epos = stream.Position;
+                    stream.Position = p;
+                }
+                unchecked { writer.Write((ushort)-1); }
+
+            }
         }
     }
 }
