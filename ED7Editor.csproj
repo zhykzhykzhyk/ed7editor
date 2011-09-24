@@ -105,6 +105,7 @@
       <DependentUpon>MagicEditor.cs</DependentUpon>
     </None>
     <Compile Include="Models\Item.cs" />
+    <Compile Include="Models\Character.cs" />
     <Compile Include="Models\SelectorItem.cs" />
     <Compile Include="Models\Shop.cs" />
     <Compile Include="Models\Trade.cs" />
