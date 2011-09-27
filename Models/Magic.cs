@@ -36,12 +36,12 @@ namespace ED7Editor
             get { return target; }
             set { target = value; }
         }
-        byte shape;
+        byte what;
 
-        public byte Shape
+        public byte What
         {
-            get { return shape; }
-            set { shape = value; }
+            get { return what; }
+            set { what = value; }
         }
         byte attr;
 
@@ -50,12 +50,12 @@ namespace ED7Editor
             get { return attr; }
             set { attr = value; }
         }
-        byte what;
+        byte shape;
 
-        public byte What
+        public byte Shape
         {
-            get { return what; }
-            set { what = value; }
+            get { return shape; }
+            set { shape = value; }
         }
         byte aff1;
 
@@ -326,7 +326,15 @@ namespace ED7Editor
                     if (magics[i] != null)
                     {
                         if (i < quartz.Length) quartz[i] = magics[i].Quartz;
+                        byte[] str1 = Helper.Encoding.GetBytes(magics[i].Name);
+                        byte[] str2 = Helper.Encoding.GetBytes(magics[i].Description);
+                        magics[i].Field.Str1 = (ushort)(p + Marshal.SizeOf(typeof(MagicField)));
+                        magics[i].Field.Str2 = (ushort)(magics[i].Field.Str1 + str1.Length + 1);
                         WriteStruct(stream, magics[i].Field);
+                        stream.Write(str1, 0, str1.Length);
+                        writer.Write((byte)0);
+                        stream.Write(str2, 0, str2.Length);
+                        writer.Write((byte)0);
                         p = stream.Position;
                     }
                     stream.Position = pos;
