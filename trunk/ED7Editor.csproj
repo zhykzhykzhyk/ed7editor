@@ -30,7 +30,7 @@
     <WebPage>publish.htm</WebPage>
     <DisallowUrlActivation>true</DisallowUrlActivation>
     <ApplicationRevision>10</ApplicationRevision>
-    <ApplicationVersion>1.4.1.%2a</ApplicationVersion>
+    <ApplicationVersion>1.4.2.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
@@ -72,6 +72,22 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>ED7Editor_1_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AoNoKiseki|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Japanese\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;AONOKISEKI</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\ED7Editor.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;e:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;e:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -98,6 +114,57 @@
     <Compile Include="Loader.Designer.cs">
       <DependentUpon>Loader.cs</DependentUpon>
     </Compile>
+    <None Include="950\t_bgm._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_cook._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_crfget._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_fish._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_item._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_item2._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_ittxt._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_ittxt2._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_magic._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_magqrt._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_name._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_orb._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_quartz._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_shop._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_sltget._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_town._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="950\t_trade._dt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="MagicEditor.cs">
       <SubType>Form</SubType>
     </None>
@@ -141,120 +208,120 @@
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="ED7Editor_1_TemporaryKey.pfx" />
-    <Content Include="org\t_bgm._dt">
+    <None Include="936\t_bgm._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book00._dt">
+    </None>
+    <None Include="936\t_book00._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book01._dt">
+    </None>
+    <None Include="936\t_book01._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book02._dt">
+    </None>
+    <None Include="936\t_book02._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book03._dt">
+    </None>
+    <None Include="936\t_book03._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book04._dt">
+    </None>
+    <None Include="936\t_book04._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_book05._dt">
+    </None>
+    <None Include="936\t_book05._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_btrev._dt">
+    </None>
+    <None Include="936\t_btrev._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_chrid._dt">
+    </None>
+    <None Include="936\t_chrid._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_cook._dt">
+    </None>
+    <None Include="936\t_cook._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_crfget._dt">
+    </None>
+    <None Include="936\t_crfget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_dbmon._dt">
+    </None>
+    <None Include="936\t_dbmon._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_exchr._dt">
+    </None>
+    <None Include="936\t_exchr._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_exmov._dt">
+    </None>
+    <None Include="936\t_exmov._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_exvis._dt">
+    </None>
+    <None Include="936\t_exvis._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_fish._dt">
+    </None>
+    <None Include="936\t_fish._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_item._dt">
+    </None>
+    <None Include="936\t_item._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_item2._dt">
+    </None>
+    <None Include="936\t_item2._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_ittxt._dt">
+    </None>
+    <None Include="936\t_ittxt._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_ittxt2._dt">
+    </None>
+    <None Include="936\t_ittxt2._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_magic._dt">
+    </None>
+    <None Include="936\t_magic._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_magqrt._dt">
+    </None>
+    <None Include="936\t_magqrt._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_memo._dt">
+    </None>
+    <None Include="936\t_memo._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_mgame._dt">
+    </None>
+    <None Include="936\t_mgame._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_mons._dt">
+    </None>
+    <None Include="936\t_mons._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_msas._dt">
+    </None>
+    <None Include="936\t_msas._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_name._dt">
+    </None>
+    <None Include="936\t_name._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_orb._dt">
+    </None>
+    <None Include="936\t_orb._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_quartz._dt">
+    </None>
+    <None Include="936\t_quartz._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_quest._dt">
+    </None>
+    <None Include="936\t_quest._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_record._dt">
+    </None>
+    <None Include="936\t_record._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_se._dt">
+    </None>
+    <None Include="936\t_se._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_shop._dt">
+    </None>
+    <None Include="936\t_shop._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_sltget._dt">
+    </None>
+    <None Include="936\t_sltget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_status._dt">
+    </None>
+    <None Include="936\t_status._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_town._dt">
+    </None>
+    <None Include="936\t_town._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_trade._dt">
+    </None>
+    <None Include="936\t_trade._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="org\t_world._dt">
+    </None>
+    <None Include="936\t_world._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

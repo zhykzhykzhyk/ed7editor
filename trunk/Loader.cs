@@ -19,20 +19,31 @@ namespace ED7Editor
 
         private void Loader_Load(object sender, EventArgs e)
         {
-            while (!Directory.Exists(Properties.Settings.Default.ED7Path) ||
-                Directory.GetFiles(Properties.Settings.Default.ED7Path, "ED_ZERO.exe").Length == 0)
-            {
-                if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-                    Environment.Exit(1);
-                Properties.Settings.Default.ED7Path = fbd.SelectedPath;
-                Properties.Settings.Default.Save();
-            }
+#if !DEBUG
+            if (!Helper.CheckPath())
+#endif
+                do
+                    if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+                        Environment.Exit(1);
+                while (!Helper.SetPath(fbd.SelectedPath));
+
+
             foreach (var type in Helper.Editors)
             {
                 comboBox1.Items.Add(type);
             }
             comboBox1.SelectedIndex = 0;
             Helper.Load(WarnDirty);
+#if AONOKISEKI
+            using (var writer = new StreamWriter(@"D:\item.txt"))
+            {
+                foreach (var f in Helper.GetEditorByType(typeof(ItemEditor)).GetList())
+                {
+                    var i = f.Item as Item;
+                    writer.WriteLine("{0}\t{1}\t{2}", i.Field.ID, i.Name, i.Description);
+                }
+            }
+#endif
             //Hide();
             //new Editor().ShowDialog();
             //Close();
