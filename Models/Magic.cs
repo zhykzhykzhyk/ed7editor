@@ -71,6 +71,43 @@ namespace ED7Editor
             get { return aff2; }
             set { aff2 = value; }
         }
+#if AONOKISEKI
+        byte unknown;
+
+        public byte Unknown
+        {
+            get { return unknown; }
+            set { unknown = value; }
+        }
+        byte rng;
+
+        public byte Rng
+        {
+            get { return rng; }
+            set { rng = value; }
+        }
+
+        byte drive;
+
+        public byte Drive
+        {
+            get { return drive; }
+            set { drive = value; }
+        }
+        byte wait;
+
+        public byte Wait
+        {
+            get { return wait; }
+            set { wait = value; }
+        }
+        ushort ep;
+        public ushort Ep
+        {
+            get { return ep; }
+            set { ep = value; }
+        }
+#else
         ushort rng;
 
         public ushort Rng
@@ -78,15 +115,15 @@ namespace ED7Editor
             get { return rng; }
             set { rng = value; }
         }
+#endif
         ushort region;
-
         public ushort Region
         {
             get { return region; }
             set { region = value; }
         }
+#if !AONOKISEKI
         ushort drive;
-
         public ushort Drive
         {
             get { return drive; }
@@ -100,21 +137,19 @@ namespace ED7Editor
             set { wait = value; }
         }
         ushort ep;
-
         public ushort Ep
         {
             get { return ep; }
             set { ep = value; }
         }
         ushort unknown;
-
         public ushort Unknown
         {
             get { return unknown; }
             set { unknown = value; }
         }
+#endif
         short amount1;
-
         public short Amount1
         {
             get { return amount1; }
@@ -268,9 +303,18 @@ namespace ED7Editor
         Magic[] magics;
         public override void Load()
         {
+#if AONOKISEKI
+            Magic[] magics = new Magic[425];
+#else
             Magic[] magics = new Magic[350];
+#endif
             MagicQuartz[] quartz = new MagicQuartz[151];
+#if AONOKISEKI
+            ushort[] lp = new ushort[425];
+#else
             ushort[] lp = new ushort[350];
+#endif
+#if !AONOKISEKI
             using (var stream = File.OpenRead(GetFile("t_magqrt._dt")))
             using (var reader = new BinaryReader(stream))
             {
@@ -284,6 +328,7 @@ namespace ED7Editor
                         quartz[quart.ID] = quart;
                 }
             }
+#endif
             using (var stream = File.OpenRead(GetFile("t_magic._dt")))
             using (var reader = new BinaryReader(stream))
             {

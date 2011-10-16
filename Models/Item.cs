@@ -222,6 +222,10 @@ namespace ED7Editor
             using (var stream = File.OpenRead(EditorBase.GetFile("t_quartz._dt")))
             {
                 int i = 0;
+#if AONOKISEKI
+                stream.ReadByte();
+                stream.ReadByte();
+#endif
                 while (stream.Position < stream.Length)
                 {
                     quartz[i++] = ReadStrcuture<ItemQuartz>(stream);
@@ -243,7 +247,7 @@ namespace ED7Editor
                 //lp.Add(pos);
                 foreach (var p in lp)
                 {
-                    Item item = new Item();
+                    Item item = new Item { Name = "", Description = "" };
                     stream.Seek(p, SeekOrigin.Begin);
                     item.Field = ReadStrcuture<ItemField>(stream);
                     if (item.Field.ID >= 100 && item.Field.ID < 300)
@@ -269,7 +273,7 @@ namespace ED7Editor
                 //lp.Add(pos);
                 foreach (var p in lp)
                 {
-                    Item item = new Item();
+                    Item item = new Item { Name = "", Description = "" };
                     stream.Seek(p, SeekOrigin.Begin);
                     item.Field = ReadStrcuture<ItemField>(stream);
                     Item[item.Field.ID] = item;

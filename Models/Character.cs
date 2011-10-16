@@ -10,7 +10,7 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 using System.Reflection;
-
+//#if !AONOKISEKI
 namespace ED7Editor
 {
     [ReadOnly(true)]
@@ -345,3 +345,4 @@ namespace ED7Editor
         }
     }
 }
+//#endif

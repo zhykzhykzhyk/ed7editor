@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.ComponentModel;
+using System.Security.Cryptography;
 
 namespace ED7Editor
 {
@@ -107,9 +108,10 @@ namespace ED7Editor
             try
             {
                 string textPath = Properties.Settings.Default.ED7Path + @"\data\text\";
+                string org = String.Format(@"\{0}\", Helper.Encoding.CodePage);
                 if (!File.Exists(textPath + filename))
                 {
-                    File.Copy(Application.StartupPath + @"\org\" + filename, textPath + filename);
+                    File.Copy(Application.StartupPath + org + filename, textPath + filename);
                     return textPath + filename;
                 }
                 byte[] header = new byte[4];
@@ -120,7 +122,7 @@ namespace ED7Editor
                 if (header[0] == 'S' && header[1] == 'D' && header[2] == 'F' && header[3] == 'A')
                 {
                     File.Move(textPath + filename, textPath + filename + ".bak");
-                    File.Copy(Application.StartupPath + @"\org\" + filename, textPath + filename);
+                    File.Copy(Application.StartupPath + org + filename, textPath + filename);
                 }
                 return textPath + filename;
             }
@@ -159,7 +161,15 @@ namespace ED7Editor
                 }
             }
         }
-        public readonly static Encoding Encoding = Encoding.GetEncoding(936);
+#if !AONOKISEKI
+        public static Encoding Encoding
+        {
+            get;
+            private set;
+        }
+#else
+        public readonly static Encoding Encoding = Encoding.GetEncoding("Shift-JIS");
+#endif
         public static EditorBase GetEditorByType(Type type)
         {
             lock (editors)
@@ -209,5 +219,36 @@ namespace ED7Editor
         }
         static bool dirty;
         static Dictionary<Type, EditorBase> editors = new Dictionary<Type, EditorBase>();
+
+        public static bool CheckPath()
+        {
+            DirectoryInfo info = new DirectoryInfo(Properties.Settings.Default.ED7Path);
+            if (!info.Exists)
+                return false;
+            var files = info.GetFiles("ED_ZERO.exe", SearchOption.TopDirectoryOnly);
+            if (files.Length != 1) return false;
+            var file = files[0];
+            byte[] hash;
+            using (var stream = file.OpenRead())
+                hash = new MD5CryptoServiceProvider().ComputeHash(stream);
+            switch (BitConverter.ToString(hash).Replace("-", ""))
+            {
+                case "DA16661AEF931C86645E3B5D41A00B45":
+                    Encoding = Encoding.GetEncoding(950);
+                    return true;
+                case "1E17B6101C3BC6CE779AF192F7F5E8BF":
+                    Encoding = Encoding.GetEncoding(936);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool SetPath(string p)
+        {
+            Properties.Settings.Default.ED7Path = p;
+            Properties.Settings.Default.Save();
+            return CheckPath();
+        }
     }
 }
