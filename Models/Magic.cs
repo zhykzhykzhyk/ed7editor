@@ -315,7 +315,7 @@ namespace ED7Editor
             ushort[] lp = new ushort[350];
 #endif
 #if !AONOKISEKI
-            using (var stream = File.OpenRead(GetFile("t_magqrt._dt")))
+            using (var stream = ReadFile("t_magqrt._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 for (int i = 0; i < quartz.Length; i++)
@@ -329,7 +329,7 @@ namespace ED7Editor
                 }
             }
 #endif
-            using (var stream = File.OpenRead(GetFile("t_magic._dt")))
+            using (var stream = ReadFile("t_magic._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 for (int i = 0; i < lp.Length; i++)
@@ -359,7 +359,7 @@ namespace ED7Editor
         public override void Save()
         {
             MagicQuartz[] quartz = new MagicQuartz[151];
-            using (var stream = File.OpenWrite(GetFile("t_magic._dt")))
+            using (var stream = WriteFile("t_magic._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long p = magics.Length * 2;
@@ -385,7 +385,7 @@ namespace ED7Editor
                     stream.Position = pos;
                 }
             }
-            using (var stream = File.OpenWrite(GetFile("t_magqrt._dt")))
+            using (var stream = WriteFile("t_magqrt._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long p = quartz.Length * 2;

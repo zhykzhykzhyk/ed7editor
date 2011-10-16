@@ -36,7 +36,7 @@ namespace ED7Editor
         public override void Load()
         {
             SortedDictionary<ushort, Shop> shops = new SortedDictionary<ushort, Shop>();
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_shop._dt")))
+            using (var stream = ReadFile("t_shop._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort end = 0x200;
@@ -76,7 +76,7 @@ namespace ED7Editor
         }
         public override void Save()
         {
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_shop._dt")))
+            using (var stream = WriteFile("t_shop._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long epos = 0x200;

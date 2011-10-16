@@ -16,8 +16,10 @@ namespace ED7Editor
     {
         public int Index { get; set; }
         public object Item { get; set; }
+        public string Name { get; set; }
         public override string ToString()
         {
+            if (Name != null) return Name;
             if (Item == null) return "";
             return Item.ToString();
         }
@@ -103,7 +105,17 @@ namespace ED7Editor
             }
             catch { return false; }
         }
-        public static string GetFile(string filename)
+        public static FileStream ReadFile(string filename)
+        {
+            return File.OpenRead(GetFile(filename, true));
+        }
+
+        public static FileStream WriteFile(string filename)
+        {
+            return File.OpenWrite(GetFile(filename));
+        }
+
+        private static string GetFile(string filename, bool readOnly = false)
         {
             try
             {
@@ -222,7 +234,15 @@ namespace ED7Editor
 
         public static bool CheckPath()
         {
-            DirectoryInfo info = new DirectoryInfo(Properties.Settings.Default.ED7Path);
+            DirectoryInfo info;
+            try
+            {
+                info = new DirectoryInfo(Properties.Settings.Default.ED7Path);
+            }
+            catch
+            {
+                return false;
+            }
             if (!info.Exists)
                 return false;
             var files = info.GetFiles("ED_ZERO.exe", SearchOption.TopDirectoryOnly);

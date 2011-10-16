@@ -185,7 +185,7 @@ namespace ED7Editor
         public override void Load()
         {
             SortedDictionary<ushort, Character> characters = new SortedDictionary<ushort, Character>();
-            using (var stream = File.OpenRead(GetFile("t_name._dt")))
+            using (var stream = ReadFile("t_name._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 while (true)
@@ -201,7 +201,7 @@ namespace ED7Editor
                     characters.Add(character.Name.Field.ID, character);
                 }
             }
-            using (var stream = File.OpenRead(GetFile("t_orb._dt")))
+            using (var stream = ReadFile("t_orb._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort i = 0;
@@ -222,7 +222,7 @@ namespace ED7Editor
                     stream.Position = p;
                 }
             }
-            using (var stream = File.OpenRead(GetFile("t_crfget._dt")))
+            using (var stream = ReadFile("t_crfget._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort i = 0;
@@ -243,7 +243,7 @@ namespace ED7Editor
                     stream.Position = p;
                 }
             }
-            using (var stream = File.OpenRead(GetFile("t_sltget._dt")))
+            using (var stream = ReadFile("t_sltget._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort i = 0;
@@ -280,6 +280,7 @@ namespace ED7Editor
 
         public override object GetById(int id)
         {
+            if (characters == null) Load();
             return characters.ContainsKey((ushort)id) ? characters[(ushort)id] : null;
         }
 
@@ -290,7 +291,7 @@ namespace ED7Editor
 
         public override void Save()
         {
-            using (var stream = File.OpenWrite(GetFile("t_orb._dt")))
+            using (var stream = WriteFile("t_orb._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long epos = (MainCharacter + 1) * 2;
@@ -308,7 +309,7 @@ namespace ED7Editor
                 }
                 unchecked { writer.Write((ushort)-1); }
             }
-            using (var stream = File.OpenWrite(GetFile("t_crfget._dt")))
+            using (var stream = WriteFile("t_crfget._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long epos = (MainCharacter + 1) * 2;
@@ -325,7 +326,7 @@ namespace ED7Editor
                 }
                 unchecked { writer.Write((ushort)-1); }
             }
-            using (var stream = File.OpenWrite(GetFile("t_sltget._dt")))
+            using (var stream = WriteFile("t_sltget._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 long epos = (MainCharacter + 1) * 2;
@@ -341,6 +342,31 @@ namespace ED7Editor
                 }
                 unchecked { writer.Write((ushort)-1); }
 
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public class CharacterReference
+    {
+        public override string ToString()
+        {
+            return Name;
+        }
+        public ushort ID { get; set; }
+        [Browsable(false)]
+        public Character Character
+        {
+            get
+            {
+                return (Character)Helper.GetEditorByType(typeof(CharacterEditor)).GetById(ID);
+            }
+        }
+        public string Name
+        {
+            get
+            {
+                return Character != null ? Character.Name.Value : null;
             }
         }
     }

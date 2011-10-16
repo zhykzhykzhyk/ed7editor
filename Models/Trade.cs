@@ -37,7 +37,7 @@ namespace ED7Editor
         public readonly static string[] TradeNames = new string[] { "交换", "改造" };
         public override void Load()
         {
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_trade._dt")))
+            using (var stream = ReadFile("t_trade._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort[] pos = new ushort[2];
@@ -67,7 +67,7 @@ namespace ED7Editor
         }
         public override void Save()
         {
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_trade._dt")))
+            using (var stream = WriteFile("t_trade._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 ushort pos = 4;
