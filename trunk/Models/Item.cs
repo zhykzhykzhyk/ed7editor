@@ -15,7 +15,7 @@ namespace ED7Editor
 {
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
-    class ItemField
+    public class ItemField
     {
         private ushort id;
         [ReadOnly(true)]
@@ -219,7 +219,7 @@ namespace ED7Editor
         {
             SortedDictionary<ushort, Item> Item = new SortedDictionary<ushort, Item>();
             ItemQuartz[] quartz = new ItemQuartz[200];
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_quartz._dt")))
+            using (var stream = ReadFile("t_quartz._dt"))
             {
                 int i = 0;
 #if AONOKISEKI
@@ -231,7 +231,7 @@ namespace ED7Editor
                     quartz[i++] = ReadStrcuture<ItemQuartz>(stream);
                 }
             }
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_item._dt")))
+            using (var stream = ReadFile("t_item._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort header = reader.ReadUInt16();
@@ -257,7 +257,7 @@ namespace ED7Editor
                     Item[item.Field.ID] = item;
                 }
             }
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_item2._dt")))
+            using (var stream = ReadFile("t_item2._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort header = reader.ReadUInt16();
@@ -279,7 +279,7 @@ namespace ED7Editor
                     Item[item.Field.ID] = item;
                 }
             }
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_ittxt._dt")))
+            using (var stream = ReadFile("t_ittxt._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort header = reader.ReadUInt16();
@@ -306,7 +306,7 @@ namespace ED7Editor
                     Item[id].Description = EditorBase.ReadString(stream);
                 }
             }
-            using (var stream = File.OpenRead(EditorBase.GetFile("t_ittxt2._dt")))
+            using (var stream = ReadFile("t_ittxt2._dt"))
             using (var reader = new BinaryReader(stream))
             {
                 ushort header = reader.ReadUInt16();
@@ -362,7 +362,7 @@ namespace ED7Editor
                 item.Quartz.ID = (ushort)(item.Field.ID - 100);
                 quartz[item.Quartz.ID] = item.Quartz;
             }
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_quartz._dt")))
+            using (var stream = WriteFile("t_quartz._dt"))
             {
                 foreach (var q in quartz)
                 {
@@ -371,7 +371,7 @@ namespace ED7Editor
             }
             //Item[9][999] = new Item { Field = new ItemField { ID = 999 } };
             //Item[17][9999] = new Item { Field = new ItemField { ID = 9999 } };
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_item._dt")))
+            using (var stream = WriteFile("t_item._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 stream.Seek(20, SeekOrigin.Begin);
@@ -408,7 +408,7 @@ namespace ED7Editor
                     }
                 }
             }
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_item2._dt")))
+            using (var stream = WriteFile("t_item2._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 stream.Seek(16, SeekOrigin.Begin);
@@ -445,7 +445,7 @@ namespace ED7Editor
                     }
                 }
             }
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_ittxt._dt")))
+            using (var stream = WriteFile("t_ittxt._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 stream.Seek(20, SeekOrigin.Begin);
@@ -482,7 +482,7 @@ namespace ED7Editor
                     }
                 }
             }
-            using (var stream = File.OpenWrite(EditorBase.GetFile("t_ittxt2._dt")))
+            using (var stream = WriteFile("t_ittxt2._dt"))
             using (var writer = new BinaryWriter(stream))
             {
                 stream.Seek(16, SeekOrigin.Begin);
@@ -580,7 +580,7 @@ namespace ED7Editor
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
-    class ItemQuartz
+    public class ItemQuartz
     {
         public ItemQuartz()
         {
@@ -617,7 +617,7 @@ namespace ED7Editor
         }
     }
 
-    class Item : IComparable<Item>
+    public class Item : IComparable<Item>
     {
         public ItemField Field { get; set; }
         public string Name { get; set; }
@@ -636,7 +636,7 @@ namespace ED7Editor
 
     [Editor(typeof(ItemReferenceEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential)]
-    class ItemReference
+    public class ItemReference
     {
         public override string ToString()
         {
@@ -670,7 +670,7 @@ namespace ED7Editor
     //[TypeConverter(typeof(ExpandableObjectConverter))]
     [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
-    struct ItemCount
+    public struct ItemCount
     {
         ItemReference item;
         public ItemReference Item
