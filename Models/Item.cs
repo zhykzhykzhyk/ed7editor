@@ -10,6 +10,7 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 using System.Reflection;
+using System.Linq;
 
 namespace ED7Editor
 {
@@ -204,7 +205,7 @@ namespace ED7Editor
             }
             return items.Values;
         }
-        public override object GetById(int id)
+        public override Item GetById(int id)
         {
             lock (this) if (items == null) Load();
             var x = id - 990;
@@ -562,10 +563,9 @@ namespace ED7Editor
         }
         public override IEnumerable<IndexedItem> GetList()
         {
-            lock(this) if (items == null) Load();
-            List<IndexedItem> list = new List<IndexedItem>();
-            foreach (var v in items) list.Add(new IndexedItem { Index = v.Key, Item = v.Value });
-            return list;
+            lock (this) if (items == null) Load();
+            return from i in items
+                   select new IndexedItem { Index = i.Key, Item = i.Value };
         }
         public override bool Remove(int id)
         {
@@ -633,41 +633,10 @@ namespace ED7Editor
             return Field.ID - other.Field.ID;
         }
     }
-
-    [Editor(typeof(ItemReferenceEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential)]
-    public class ItemReference
-    {
-        public override string ToString()
-        {
-            return Name;
-        }
-        [Editor(typeof(ItemIDSelector), typeof(UITypeEditor))]
-        public ushort ID { get; set; }
-        [Browsable(false)]
-        public Item Item
-        {
-            get
-            {
-                return (Item)Helper.GetEditorByType(typeof(ItemEditor)).GetById(ID);
-            }
-        }
-        public string Name
-        {
-            get
-            {
-                return Item != null ? Item.Name : null;
-            }
-        }
-        public string Description
-        {
-            get
-            {
-                return Item != null ? Item.Description : null;
-            }
-        }
-    }
-    //[TypeConverter(typeof(ExpandableObjectConverter))]
+    public class ItemReference : Reference<Item, ushort>
+    { }
+
     [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
     public struct ItemCount
@@ -679,91 +648,5 @@ namespace ED7Editor
             set { item = value; }
         }
         public ushort Count { get; set; }
-    }
-    class ValueTypeConverter : TypeConverter
-    {
-        class ValueTypePropertyDescriptor : SimplePropertyDescriptor
-        {
-            public ValueTypePropertyDescriptor(PropertyInfo property, ITypeDescriptorContext context,
-                IEnumerable<Attribute> attributes) :
-                base(property.ReflectedType, property.Name, property.PropertyType,
-                GetAttributes(property,attributes))
-            {
-                this.property = property;
-                this.context = context;
-            }
-            static Attribute[] GetAttributes(PropertyInfo property, IEnumerable<Attribute> attributes)
-            {
-                var list = new List<Attribute>(attributes);
-                foreach (var attr in property.GetCustomAttributes(true))
-                {
-                    if (attr is Attribute) list.Add((Attribute)attr);
-                }
-                return list.ToArray();
-            }
-            PropertyInfo property;
-            ITypeDescriptorContext context;
-            public override void SetValue(object component, object value)
-            {
-                property.SetValue(component, value, new object[0]);
-                context.PropertyDescriptor.SetValue(context.Instance, component);
-            }
-            public override object GetValue(object component)
-            {
-                return property.GetValue(component, new object[0]);
-            }
-        }
-        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context,
-            object value, Attribute[] attributes)
-        {
-            List<PropertyDescriptor> list = new List<PropertyDescriptor>();
-            foreach (var property in context.PropertyDescriptor.PropertyType.GetProperties())
-            {
-                var descriptor = new ValueTypePropertyDescriptor(property, context, attributes);
-                if (descriptor.IsBrowsable) list.Add(descriptor);
-            }
-            return new PropertyDescriptorCollection(list.ToArray());
-        }
-
-        public override bool GetPropertiesSupported(ITypeDescriptorContext context)
-        {
-            return true;
-        }
-    }
-    class ItemReferenceEditor : UITypeEditor
-    {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-        {
-            return UITypeEditorEditStyle.Modal;
-        }
-
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
-            object value)
-        {
-            var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
-            var id = ((ItemReference)value).ID;
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
-                return value = new ItemReference { ID = (ushort)selector.Result };
-            return value;
-        }
-    }
-    class ItemIDSelector : UITypeEditor
-    {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-        {
-            return UITypeEditorEditStyle.Modal;
-        }
-
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
-            object value)
-        {
-            var selector = new Selector(Helper.GetEditorByType(typeof(ItemEditor)));
-            var id = (ushort)value;
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
-                return (ushort)selector.Result;
-            return value;
-        }
     }
 }

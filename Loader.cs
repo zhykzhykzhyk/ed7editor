@@ -30,7 +30,8 @@ namespace ED7Editor
 
             foreach (var type in Helper.Editors)
             {
-                comboBox1.Items.Add(type);
+                if (type.Browsable)
+                    comboBox1.Items.Add(type);
             }
             comboBox1.SelectedIndex = 0;
             Helper.Load(WarnDirty);

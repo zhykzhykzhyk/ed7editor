@@ -28,10 +28,8 @@ namespace ED7Editor
         public override IEnumerable<IndexedItem> GetList()
         {
             if (trades == null) Load();
-            List<IndexedItem> list = new List<IndexedItem>();
             for (int i = 0; i < trades.Count; i++)
-                list.Add(new IndexedItem { Index = i, Item = trades[i] });
-            return list;
+                yield return new IndexedItem { Index = i, Item = trades[i] };
         }
         IList<Trade> trades;
         public readonly static string[] TradeNames = new string[] { "交换", "改造" };
@@ -57,7 +55,7 @@ namespace ED7Editor
                 this.trades = trades;
             }
         }
-        public override object GetById(int id)
+        public override Trade GetById(int id)
         {
             throw new NotImplementedException();
         }
@@ -119,7 +117,7 @@ namespace ED7Editor
 
         public override string ToString()
         {
-            return Target.Name;
+            return Target.ToString();
         }
     }
 

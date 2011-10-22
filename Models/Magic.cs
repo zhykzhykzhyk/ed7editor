@@ -10,6 +10,7 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 using System.Reflection;
+using System.Linq;
 
 namespace ED7Editor
 {
@@ -193,7 +194,7 @@ namespace ED7Editor
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    [Editor(typeof(MagicQuartzEditor), typeof(UITypeEditor))] 
+    [Editor(typeof(MagicQuartzEditor), typeof(UITypeEditor))]
     public class MagicQuartz
     {
         public MagicQuartz()
@@ -212,11 +213,11 @@ namespace ED7Editor
 
     }
 
-    class MagicQuartzEditor:UITypeEditor
+    class MagicQuartzEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
-            return (context.Instance as Magic).ID <= 150 ? 
+            return (context.Instance as Magic).ID <= 150 ?
                 UITypeEditorEditStyle.Modal : UITypeEditorEditStyle.None;
         }
 
@@ -271,7 +272,7 @@ namespace ED7Editor
             di.Field = si.Field.Duplicate();
             return true;
         }
-        public override object GetById(int id)
+        public override Magic GetById(int id)
         {
             lock (this)
                 if (magics == null) Load();
@@ -279,26 +280,22 @@ namespace ED7Editor
         }
         public override IEnumerable<IndexedItem> GetList()
         {
-            lock(this)
+            lock (this)
                 if (magics == null) Load();
-            List<IndexedItem> list = new List<IndexedItem>();
-            for (int i = 0; i < magics.Length; i++)
-                if (magics[i] != null)
-                    list.Add(new IndexedItem { Index = i, Item = magics[i] });
-            return list;
+            return from m in magics
+                   where m != null
+                   select new IndexedItem { Index = m.ID, Item = m };
         }
         public override IEnumerable<SelectorItem> GetSelector()
         {
-            List<SelectorItem> items = new List<SelectorItem>();
-            for (int i = 0; i < magics.Length; i++)
-                if (magics[i] != null)
-                    items.Add(new SelectorItem
+            return from m in magics
+                   where m != null
+                   select new SelectorItem
                     {
-                        ID = i,
-                        Name = magics[i].Name,
-                        Description = magics[i].Description.Replace(@"\n", "\r\n")
-                    });
-            return items;
+                        ID = m.ID,
+                        Name = m.Name,
+                        Description = m.Description.Replace(@"\n", "\r\n")
+                    };
         }
         Magic[] magics;
         public override void Load()
@@ -405,73 +402,7 @@ namespace ED7Editor
             }
         }
     }
-    class MagicReferenceEditor : UITypeEditor
-    {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-        {
-            return UITypeEditorEditStyle.Modal;
-        }
 
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
-            object value)
-        {
-            var selector = new Selector(Helper.GetEditorByType(typeof(MagicEditor)));
-            var id = ((MagicReference)value).ID;
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
-                return value = new MagicReference { ID = (ushort)selector.Result };
-            return value;
-        }
-    }
-    [Editor(typeof(MagicReferenceEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential)]
-    public class MagicReference
-    {
-        public override string ToString()
-        {
-            return Name;
-        }
-        [Editor(typeof(ItemIDSelector), typeof(UITypeEditor))]
-        public ushort ID { get; set; }
-        [Browsable(false)]
-        public Magic Magic
-        {
-            get
-            {
-                return (Magic)Helper.GetEditorByType(typeof(MagicEditor)).GetById(ID);
-            }
-        }
-        public string Name
-        {
-            get
-            {
-                return Magic != null ? Magic.Name : null;
-            }
-        }
-        public string Description
-        {
-            get
-            {
-                return Magic != null ? Magic.Description : null;
-            }
-        }
-    }
-    public class MagicIDSelector : UITypeEditor
-    {
-        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-        {
-            return UITypeEditorEditStyle.Modal;
-        }
-
-        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
-            object value)
-        {
-            var selector = new Selector(Helper.GetEditorByType(typeof(MagicEditor)));
-            var id = (ushort)value;
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
-                return (ushort)selector.Result;
-            return value;
-        }
-    }
+    public class MagicReference : Reference<Magic, ushort> { }
 }

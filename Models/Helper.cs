@@ -40,6 +40,11 @@ namespace ED7Editor
     }
     public abstract class EditorBase<T> : EditorBase where T : class
     {
+        public abstract T GetById(int id);
+        public override object GetObjById(int id)
+        {
+            return GetById(id);
+        }
     }
     public abstract class EditorBase
     {
@@ -52,7 +57,7 @@ namespace ED7Editor
         public abstract void Load();
         public abstract IEnumerable<IndexedItem> GetList();
         public abstract IEnumerable<SelectorItem> GetSelector();
-        public abstract object GetById(int id);
+        public abstract object GetObjById(int id);
         public abstract bool Add(int id);
         public abstract bool CopyTo(object src, object dest);
         public abstract bool Remove(int item);
@@ -159,6 +164,22 @@ namespace ED7Editor
                 return type.Name;
             }
         }
+
+        public bool Browsable
+        {
+            get
+            {
+                try
+                {
+                    return ((BrowsableAttribute)GetType()
+                        .GetCustomAttributes(typeof(BrowsableAttribute), true)[0]).Browsable;
+                }
+                catch
+                {
+                    return true;
+                }
+            }
+        }
     }
     public static class Helper
     {
@@ -186,6 +207,45 @@ namespace ED7Editor
         {
             lock (editors)
                 if (editors.ContainsKey(type)) return editors[type]; else return null;
+        }
+
+        public static T GetEditorByType<T>() where T:EditorBase
+        {
+            return (T)GetEditorByType(typeof(T));
+        }
+
+        public static string GetGenericName(Type type)
+        {
+            var name = type.AssemblyQualifiedName;
+            int x = name.IndexOf('[');
+            int y = name.LastIndexOf(']');
+            if (x != y) name = name.Remove(x, y - x + 1);
+            return name;
+        }
+        
+        static readonly string GenericName = Helper.GetGenericName(typeof(Reference<object, int>));
+
+        public static IEnumerable<EditorBase> GetEditorsOfType(Type type)
+        {
+            lock (editors)
+                foreach (var editor in editors)
+                {
+                    Type t = editor.Key;
+                    while (t.BaseType != typeof(EditorBase))
+                        t = t.BaseType;
+                    if (t.GetGenericArguments()[0] == type)
+                        yield return editor.Value;
+                }
+        }
+
+        public static IEnumerable<EditorBase<T>> GetEditorsOfType<T>() where T:class
+        {
+            lock (editors)
+                foreach (var editor in editors.Values)
+                {
+                    var e = editor as EditorBase<T>;
+                    if (e != null) yield return e;
+                }
         }
 
         public static IEnumerable<EditorBase> Editors { get { return editors.Values; } }
@@ -269,6 +329,57 @@ namespace ED7Editor
             Properties.Settings.Default.ED7Path = p;
             Properties.Settings.Default.Save();
             return CheckPath();
+        }
+    }
+
+    class ValueTypeConverter : TypeConverter
+    {
+        class ValueTypePropertyDescriptor : SimplePropertyDescriptor
+        {
+            public ValueTypePropertyDescriptor(PropertyInfo property, ITypeDescriptorContext context,
+                IEnumerable<Attribute> attributes) :
+                base(property.ReflectedType, property.Name, property.PropertyType,
+                GetAttributes(property, attributes))
+            {
+                this.property = property;
+                this.context = context;
+            }
+            static Attribute[] GetAttributes(PropertyInfo property, IEnumerable<Attribute> attributes)
+            {
+                var list = new List<Attribute>(attributes);
+                foreach (var attr in property.GetCustomAttributes(true))
+                {
+                    if (attr is Attribute) list.Add((Attribute)attr);
+                }
+                return list.ToArray();
+            }
+            PropertyInfo property;
+            ITypeDescriptorContext context;
+            public override void SetValue(object component, object value)
+            {
+                property.SetValue(component, value, new object[0]);
+                context.PropertyDescriptor.SetValue(context.Instance, component);
+            }
+            public override object GetValue(object component)
+            {
+                return property.GetValue(component, new object[0]);
+            }
+        }
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context,
+            object value, Attribute[] attributes)
+        {
+            List<PropertyDescriptor> list = new List<PropertyDescriptor>();
+            foreach (var property in context.PropertyDescriptor.PropertyType.GetProperties())
+            {
+                var descriptor = new ValueTypePropertyDescriptor(property, context, attributes);
+                if (descriptor.IsBrowsable) list.Add(descriptor);
+            }
+            return new PropertyDescriptorCollection(list.ToArray());
+        }
+
+        public override bool GetPropertiesSupported(ITypeDescriptorContext context)
+        {
+            return true;
         }
     }
 }
