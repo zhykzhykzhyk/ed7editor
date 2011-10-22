@@ -11,6 +11,7 @@ using System.Windows.Forms.Design;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ED7Editor.Models
 {
@@ -69,9 +70,9 @@ namespace ED7Editor.Models
             get { return description; }
             set { description = value; }
         }
-        [Browsable(false)]
         ushort unknown;
 
+        [Browsable(false)]
         public ushort Unknown
         {
             get { return unknown; }
@@ -101,12 +102,12 @@ namespace ED7Editor.Models
     [TypeConverter(typeof(ValueTypeConverter))]
     public struct LevelProbability
     {
-        ushort prefect;
+        ushort perfect;
 
-        public ushort Prefect
+        public ushort Perfect
         {
-            get { return prefect; }
-            set { prefect = value; }
+            get { return perfect; }
+            set { perfect = value; }
         }
         ushort success;
 
@@ -130,7 +131,7 @@ namespace ED7Editor.Models
             set { unexpected = value; }
         }
     }
-    public class CookEditor : EditorBase
+    public class CookEditor : EditorBase<Cook>
     {
         List<Recipe> recipes;
         CookProbability[] probability;
@@ -149,11 +150,16 @@ namespace ED7Editor.Models
                 {
                     Recipe recipe = new Recipe();
                     recipe.Field = ReadStrcuture<RecipeField>(stream);
-                    long pos = stream.Position;
-                    stream.Position = recipe.Field.Description;
-                    recipe.Description = ReadString(stream);
-                    stream.Position = pos;
+                    if (recipe.Field.Description != 0)
+                    {
+                        long pos = stream.Position;
+                        stream.Position = recipe.Field.Description;
+                        recipe.Description = ReadString(stream);
+                        stream.Position = pos;
+                    }
+                    else recipe.Description = null;
                     recipes.Add(recipe);
+                    if (recipe.Field.ID == 999) break;
                 }
                 stream.Position = pos2;
                 probability = new CookProbability[4];
@@ -164,12 +170,10 @@ namespace ED7Editor.Models
 
         public override IEnumerable<IndexedItem> GetList()
         {
-            List<IndexedItem> items = new List<IndexedItem>();
-            items.Add(new IndexedItem { Index = -1, Item = probability, Name = "Probability" });
+            yield return new IndexedItem { Index = -1, Item = probability, Name = "Probability" };
             foreach (var recipe in recipes)
                 if (recipe.Field.ID != 999)
-                    items.Add(new IndexedItem { Index = recipe.Field.ID, Item = recipe });
-            return items;
+                    yield return new IndexedItem { Index = recipe.Field.ID, Item = recipe };
         }
 
         public override IEnumerable<SelectorItem> GetSelector()
@@ -177,7 +181,7 @@ namespace ED7Editor.Models
             throw new NotImplementedException();
         }
 
-        public override object GetById(int id)
+        public override Cook GetById(int id)
         {
             throw new NotImplementedException();
         }
@@ -209,17 +213,18 @@ namespace ED7Editor.Models
                 epos += Marshal.SizeOf(typeof(CookProbability)) * probability.Length;
                 foreach (var recipe in recipes)
                 {
-                    if (recipe.Field.ID != 999)
-                        recipe.Field.Description = (ushort)epos;
+                    recipe.Field.Description = (ushort)(recipe.Description == null ? 0 : epos);
                     WriteStruct(stream, recipe.Field);
-                    if (recipe.Field.ID == 999) break;
-                    long pos = stream.Position;
-                    stream.Position = epos;
-                    var bytes = Helper.Encoding.GetBytes(recipe.Description);
-                    stream.Write(bytes, 0, bytes.Length);
-                    stream.WriteByte(0);
-                    epos = (ushort)stream.Position;
-                    stream.Position = pos;
+                    if (recipe.Description != null)
+                    {
+                        long pos = stream.Position;
+                        stream.Position = epos;
+                        var bytes = Helper.Encoding.GetBytes(recipe.Description);
+                        stream.Write(bytes, 0, bytes.Length);
+                        stream.WriteByte(0);
+                        epos = (ushort)stream.Position;
+                        stream.Position = pos;
+                    }
                 }
                 for (int i = 0; i < probability.Length; i++)
                     WriteStruct(stream, probability[i]);

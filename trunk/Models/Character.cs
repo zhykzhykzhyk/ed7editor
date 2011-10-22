@@ -10,6 +10,7 @@ using System.Drawing.Design;
 using System.Windows.Forms.Design;
 using System.Windows.Forms;
 using System.Reflection;
+using System.Linq;
 //#if !AONOKISEKI
 namespace ED7Editor
 {
@@ -52,7 +53,7 @@ namespace ED7Editor
             return Value;
         }
     }
-    
+
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class OrbLine
@@ -114,7 +115,7 @@ namespace ED7Editor
 
         public override string ToString()
         {
-            return Craft.Name;
+            return Craft.ToString();
         }
     }
 
@@ -254,7 +255,7 @@ namespace ED7Editor
                     long p = stream.Position;
                     stream.Position = pos;
                     Slot[] slots = new Slot[7];
-                    for (int j = 0; j < slots.Length;j++)
+                    for (int j = 0; j < slots.Length; j++)
                         slots[j] = ReadStrcuture<Slot>(stream);
                     characters[i++].Slots = slots;
                     stream.Position = p;
@@ -265,12 +266,8 @@ namespace ED7Editor
 
         public override IEnumerable<IndexedItem> GetList()
         {
-            List<IndexedItem> list = new List<IndexedItem>();
-            foreach (var character in characters.Values)
-            {
-                list.Add(new IndexedItem { Index = character.Name.Field.ID, Item = character });
-            }
-            return list;
+            return from c in characters.Values
+                   select new IndexedItem { Index = c.Name.Field.ID, Item = c };
         }
 
         public override IEnumerable<SelectorItem> GetSelector()
@@ -278,7 +275,7 @@ namespace ED7Editor
             throw new NotImplementedException();
         }
 
-        public override object GetById(int id)
+        public override Character GetById(int id)
         {
             if (characters == null) Load();
             return characters.ContainsKey((ushort)id) ? characters[(ushort)id] : null;
@@ -295,16 +292,17 @@ namespace ED7Editor
             using (var writer = new BinaryWriter(stream))
             {
                 long epos = (MainCharacter + 1) * 2;
-                for (ushort i = 0; i < MainCharacter;i++){
+                for (ushort i = 0; i < MainCharacter; i++)
+                {
                     writer.Write((ushort)epos);
                     long p = stream.Position;
-                    stream.Position=epos;
-                    characters[i].Orb.Field.Length=(byte)characters[i].Orb.Lines.Count;
+                    stream.Position = epos;
+                    characters[i].Orb.Field.Length = (byte)characters[i].Orb.Lines.Count;
                     WriteStruct(stream, characters[i].Orb.Field);
-                    foreach(var line in characters[i].Orb.Lines)
+                    foreach (var line in characters[i].Orb.Lines)
                         WriteStruct(stream, line);
                     unchecked { writer.Write((ushort)-1); }
-                    epos=stream.Position;
+                    epos = stream.Position;
                     stream.Position = p;
                 }
                 unchecked { writer.Write((ushort)-1); }
@@ -335,7 +333,7 @@ namespace ED7Editor
                     writer.Write((ushort)epos);
                     long p = stream.Position;
                     stream.Position = epos;
-                    foreach(var slot in characters[i].Slots)
+                    foreach (var slot in characters[i].Slots)
                         WriteStruct(stream, slot);
                     epos = stream.Position;
                     stream.Position = p;
@@ -345,30 +343,9 @@ namespace ED7Editor
             }
         }
     }
-
+    [ReadOnly(true)]
     [StructLayout(LayoutKind.Sequential)]
-    public class CharacterReference
-    {
-        public override string ToString()
-        {
-            return Name;
-        }
-        public ushort ID { get; set; }
-        [Browsable(false)]
-        public Character Character
-        {
-            get
-            {
-                return (Character)Helper.GetEditorByType(typeof(CharacterEditor)).GetById(ID);
-            }
-        }
-        public string Name
-        {
-            get
-            {
-                return Character != null ? Character.Name.Value : null;
-            }
-        }
-    }
+    public class CharacterReference : Reference<Character, ushort> { }
+
 }
 //#endif

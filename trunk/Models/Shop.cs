@@ -7,6 +7,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Drawing.Design;
 using System.IO;
+using System.Linq;
 
 namespace ED7Editor
 {
@@ -28,9 +29,8 @@ namespace ED7Editor
         public override IEnumerable<IndexedItem> GetList()
         {
             if (shops == null) Load();
-            List<IndexedItem> list = new List<IndexedItem>();
-            foreach (var v in shops) list.Add(new IndexedItem { Index = v.Key, Item = v.Value });
-            return list;
+            return from v in shops
+                   select new IndexedItem { Index = v.Key, Item = v.Value };
         }
         SortedDictionary<ushort, Shop> shops;
         public override void Load()
@@ -66,7 +66,7 @@ namespace ED7Editor
             }
             this.shops = shops;
         }
-        public override object GetById(int id)
+        public override Shop GetById(int id)
         {
             throw new NotImplementedException();
         }

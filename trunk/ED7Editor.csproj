@@ -29,8 +29,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <DisallowUrlActivation>true</DisallowUrlActivation>
-    <ApplicationRevision>10</ApplicationRevision>
-    <ApplicationVersion>1.4.2.%2a</ApplicationVersion>
+    <ApplicationRevision>12</ApplicationRevision>
+    <ApplicationVersion>1.6.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
@@ -100,6 +100,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Cook.cs" />
+    <Compile Include="Models\Fish.cs" />
+    <Compile Include="Models\LinqBridge-1.2.cs" />
     <Compile Include="Models\Magic.cs" />
     <Compile Include="Models\Collection.cs" />
     <Compile Include="Models\Helper.cs" />
@@ -174,8 +176,10 @@
     </None>
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Character.cs" />
+    <Compile Include="Models\Reference.cs" />
     <Compile Include="Models\SelectorItem.cs" />
     <Compile Include="Models\Shop.cs" />
+    <Compile Include="Models\Town.cs" />
     <Compile Include="Models\Trade.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
