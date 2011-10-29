@@ -39,7 +39,7 @@
             // 
             this.button1.Location = new System.Drawing.Point(12, 38);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(109, 29);
+            this.button1.Size = new System.Drawing.Size(110, 30);
             this.button1.TabIndex = 0;
             this.button1.Text = "Load";
             this.button1.UseVisualStyleBackColor = true;
@@ -47,7 +47,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(165, 9);
+            this.button2.Location = new System.Drawing.Point(170, 9);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(68, 24);
             this.button2.TabIndex = 1;
@@ -63,9 +63,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(127, 38);
+            this.button3.Location = new System.Drawing.Point(128, 38);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(106, 29);
+            this.button3.Size = new System.Drawing.Size(110, 30);
             this.button3.TabIndex = 2;
             this.button3.Text = "Save";
             this.button3.UseVisualStyleBackColor = true;
@@ -77,7 +77,7 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(12, 12);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(147, 20);
+            this.comboBox1.Size = new System.Drawing.Size(152, 20);
             this.comboBox1.TabIndex = 3;
             // 
             // Loader

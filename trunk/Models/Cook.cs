@@ -23,6 +23,7 @@ namespace ED7Editor.Models
     public class Recipe
     {
         public RecipeField Field { get; set; }
+        [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         public override string ToString()
         {

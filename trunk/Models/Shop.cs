@@ -11,7 +11,6 @@ using System.Linq;
 
 namespace ED7Editor
 {
-    [DisplayName("Shop Editor")]
     class ShopEditor : EditorBase<Shop>
     {
         public override IEnumerable<SelectorItem> GetSelector()

@@ -176,6 +176,7 @@
     </None>
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Character.cs" />
+    <Compile Include="Models\Quest.cs" />
     <Compile Include="Models\Reference.cs" />
     <Compile Include="Models\SelectorItem.cs" />
     <Compile Include="Models\Shop.cs" />

@@ -10,7 +10,6 @@ using System.IO;
 
 namespace ED7Editor
 {
-    [DisplayName("Trade Editor")]
     class TradeEditor : EditorBase<Trade>
     {
         public override IEnumerable<SelectorItem> GetSelector()

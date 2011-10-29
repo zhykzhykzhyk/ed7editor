@@ -237,6 +237,7 @@ namespace ED7Editor
         public MagicField Field { get; set; }
         public MagicQuartz Quartz { get; set; }
         public string Name { get; set; }
+        [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         [ReadOnly(true)]
         public int ID { get; set; }
@@ -245,7 +246,6 @@ namespace ED7Editor
             return Name;
         }
     }
-    [DisplayName("Magic Editor")]
     public class MagicEditor : EditorBase<Magic>
     {
         public override bool Add(int id)
