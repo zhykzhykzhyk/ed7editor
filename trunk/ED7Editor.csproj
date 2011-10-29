@@ -120,12 +120,24 @@
     <None Include="950\t_bgm._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_book00._dt" />
+    <None Include="950\t_book01._dt" />
+    <None Include="950\t_book02._dt" />
+    <None Include="950\t_book03._dt" />
+    <None Include="950\t_book04._dt" />
+    <None Include="950\t_book05._dt" />
+    <None Include="950\t_btrev._dt" />
+    <None Include="950\t_chrid._dt" />
     <None Include="950\t_cook._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="950\t_crfget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_dbmon._dt" />
+    <None Include="950\t_exchr._dt" />
+    <None Include="950\t_exmov._dt" />
+    <None Include="950\t_exvis._dt" />
     <None Include="950\t_fish._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -147,6 +159,10 @@
     <None Include="950\t_magqrt._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_memo._dt" />
+    <None Include="950\t_mgame._dt" />
+    <None Include="950\t_mons._dt" />
+    <None Include="950\t_msas._dt" />
     <None Include="950\t_name._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -156,18 +172,23 @@
     <None Include="950\t_quartz._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_quest._dt" />
+    <None Include="950\t_record._dt" />
+    <None Include="950\t_se._dt" />
     <None Include="950\t_shop._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="950\t_sltget._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_status._dt" />
     <None Include="950\t_town._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="950\t_trade._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="950\t_world._dt" />
     <None Include="MagicEditor.cs">
       <SubType>Form</SubType>
     </None>
