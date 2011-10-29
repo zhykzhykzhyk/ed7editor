@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ED7Editor", "ED7Editor.csproj", "{79E04EF4-94C1-4891-9C71-2D92670BD190}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MemoryWriter", "..\MemoryWriter\MemoryWriter.csproj", "{D584B64F-6A96-4016-B839-8C0B47ED8507}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AoNoKiseki|x86 = AoNoKiseki|x86
@@ -18,12 +16,6 @@ Global
 		{79E04EF4-94C1-4891-9C71-2D92670BD190}.Debug|x86.Build.0 = Debug|x86
 		{79E04EF4-94C1-4891-9C71-2D92670BD190}.Release|x86.ActiveCfg = Release|x86
 		{79E04EF4-94C1-4891-9C71-2D92670BD190}.Release|x86.Build.0 = Release|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.AoNoKiseki|x86.ActiveCfg = Release|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.AoNoKiseki|x86.Build.0 = Release|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.Debug|x86.ActiveCfg = Debug|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.Debug|x86.Build.0 = Debug|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.Release|x86.ActiveCfg = Release|x86
-		{D584B64F-6A96-4016-B839-8C0B47ED8507}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
