@@ -8,7 +8,10 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Security.Cryptography;
+using System.Drawing.Design;
+using System.Linq;
 
 namespace ED7Editor
 {
@@ -153,15 +156,44 @@ namespace ED7Editor
         }
         public override string ToString()
         {
-            Type type = GetType();
-            try
+            return "Editor: " + Name + (ReadOnly ? "(Read-only)" : "");
+        }
+
+        public string Name
+        {
+            get
             {
-                return ((DisplayNameAttribute)type
-                    .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+                Type type = GetType();
+                try
+                {
+                    return ((DisplayNameAttribute)type
+                        .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+                }
+                catch
+                {
+                    var name = type.Name;
+                    if (name.EndsWith("Editor"))
+                    {
+                        name = name.Substring(0, name.Length - "Editor".Length);
+                    }
+                    return name;
+                }
             }
-            catch
+        }
+
+        public bool ReadOnly
+        {
+            get
             {
-                return type.Name;
+                try
+                {
+                    return ((ReadOnlyAttribute)GetType()
+                        .GetCustomAttributes(typeof(ReadOnlyAttribute), true)[0]).IsReadOnly;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
@@ -332,7 +364,7 @@ namespace ED7Editor
         }
     }
 
-    class ValueTypeConverter : TypeConverter
+    public class ValueTypeConverter : TypeConverter
     {
         class ValueTypePropertyDescriptor : SimplePropertyDescriptor
         {
@@ -381,5 +413,99 @@ namespace ED7Editor
         {
             return true;
         }
+    }
+    public class MultilineStringEditorBase : UITypeEditor
+    {
+        public MultilineStringEditorBase(string lineBreak)
+        {
+            this.lineBreak = lineBreak;
+        }
+
+        public static object FromString(Type type, string str)
+        {
+            return GetMethod(type, "op_Implicit", BindingFlags.Public | BindingFlags.Static,
+                type, new[] { typeof(string) }).Invoke(null, new[] { str });
+        }
+
+        public static MethodInfo GetMethod(Type type, string name, BindingFlags bindingFlags,
+            Type returnType, Type[] paramters)
+        {
+            foreach (var v in from m in type.GetMethods(bindingFlags)
+                              where m.Name == name && m.ReturnType == returnType
+                              select m)
+            {
+                if (paramters != null)
+                {
+                    if (v.GetParameters().Select(p => p.ParameterType).SequenceEqual(paramters))
+                        return v;
+                }
+                else if (!v.GetParameters().Any())
+                    return v;
+            }
+            return null;
+        }
+
+
+        public static string ToString(object obj)
+        {
+            var type = obj.GetType();
+            return (string)GetMethod(type, "op_Implicit", BindingFlags.Public | BindingFlags.Static,
+                typeof(string), new[] { type }).Invoke(null, new[] { obj });
+            
+        }
+
+        string lineBreak;
+
+        private string ConvertToMultiline(string str)
+        {
+            if (str == null) return null;
+            return str.Replace(lineBreak, "\r\n");
+        }
+
+        private string ConvertFromMultiline(string str)
+        {
+            if (str == null) return null;
+            return str.Replace("\r\n", lineBreak);
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            string str = value as string;
+            bool needConvert = str == null;
+            if (needConvert) str = ToString(value);
+            var before = ConvertToMultiline(str);
+            var after = editor.EditValue(context, provider, before);
+            if (after.Equals(before)) return value;
+            if (needConvert) value = FromString(context.PropertyDescriptor.PropertyType, after as string);
+            return value;
+        }
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return editor.GetEditStyle(context);
+        }
+        public override bool GetPaintValueSupported(ITypeDescriptorContext context)
+        {
+            return editor.GetPaintValueSupported(context);
+        }
+        public override void PaintValue(PaintValueEventArgs e)
+        {
+            editor.PaintValue(e);
+        }
+        public override bool IsDropDownResizable
+        {
+            get
+            {
+                return editor.IsDropDownResizable;
+            }
+        }
+        MultilineStringEditor editor = new MultilineStringEditor();
+    }
+    public class NormalStringEditor : MultilineStringEditorBase
+    {
+        public NormalStringEditor() : base(@"\n") { }
+    }
+    public class CompressedStringEditor : MultilineStringEditorBase
+    {
+        public CompressedStringEditor() : base("\x1") { }
     }
 }

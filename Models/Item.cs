@@ -165,7 +165,6 @@ namespace ED7Editor
         }
     }
 
-    [DisplayName("Item Editor")]
     class ItemEditor : EditorBase<Item>
     {
         private void WriteItemStrings(BinaryWriter writer, Item item)
@@ -622,6 +621,7 @@ namespace ED7Editor
         public ItemField Field { get; set; }
         public string Name { get; set; }
         public ItemQuartz Quartz { get; set; }
+        [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         public override string ToString()
         {
