@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace ED7Editor
 {
-    class ShopEditor : EditorBase<Shop>
+    public class ShopEditor : EditorBase<Shop>
     {
         public override IEnumerable<SelectorItem> GetSelector()
         {
@@ -107,7 +107,7 @@ namespace ED7Editor
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
-    class ShopField
+    public class ShopField
     {
         private ushort id;
         [ReadOnly(true)]
@@ -136,7 +136,7 @@ namespace ED7Editor
         public ushort Name;
     }
 
-    class Shop
+    public class Shop
     {
         public ShopField Field { get; set; }
         public string Name { get; set; }

@@ -10,7 +10,7 @@ using System.IO;
 
 namespace ED7Editor
 {
-    class TradeEditor : EditorBase<Trade>
+    public class TradeEditor : EditorBase<Trade>
     {
         public override IEnumerable<SelectorItem> GetSelector()
         {
@@ -84,7 +84,7 @@ namespace ED7Editor
         }
     }
     [StructLayout(LayoutKind.Sequential)]
-    class TradeField
+    public class TradeField
     {
         TradeField()
         {
@@ -121,7 +121,7 @@ namespace ED7Editor
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    class Trade
+    public class Trade
     {
         [Browsable(false)]
         public string Name { get; set; }

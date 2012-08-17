@@ -165,7 +165,7 @@ namespace ED7Editor
         }
     }
 
-    class ItemEditor : EditorBase<Item>
+    public class ItemEditor : EditorBase<Item>
     {
         private void WriteItemStrings(BinaryWriter writer, Item item)
         {

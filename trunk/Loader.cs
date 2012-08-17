@@ -28,7 +28,7 @@ namespace ED7Editor
                 while (!Helper.SetPath(fbd.SelectedPath));
 
 
-            foreach (var type in Helper.Editors)
+            foreach (var type in Helper.Components)
             {
                 if (type.Browsable)
                     comboBox1.Items.Add(type);
@@ -64,7 +64,7 @@ namespace ED7Editor
 
         private void button2_Click(object sender, EventArgs e)
         {
-            new Editor((EditorBase)comboBox1.SelectedItem).Show();
+            ((Component)comboBox1.SelectedItem).Launch();
         }
 
         private void button3_Click(object sender, EventArgs e)
