@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ED7Editor.Models
+namespace ED7Editor
 {
     public class Cook
     {

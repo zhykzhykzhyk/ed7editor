@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
 
-namespace ED7Editor.Models
+namespace ED7Editor
 {
     public class Fish
     {

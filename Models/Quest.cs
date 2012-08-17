@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ED7Editor.Models
+namespace ED7Editor
 {
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -133,7 +133,7 @@ namespace ED7Editor.Models
     }
 
     [ReadOnly(true)]
-    class QuestEditor : EditorBase<Quest>
+    public class QuestEditor : EditorBase<Quest>
     {
         public override Quest GetById(int id)
         {

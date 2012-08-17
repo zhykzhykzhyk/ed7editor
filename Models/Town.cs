@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Drawing.Design;
 using System.IO;
 
-namespace ED7Editor.Models
+namespace ED7Editor
 {
     public class Town
     {

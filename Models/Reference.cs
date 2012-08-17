@@ -43,7 +43,8 @@ namespace ED7Editor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
-            if (context.PropertyDescriptor.IsReadOnly)
+            if (context.PropertyDescriptor != null &&
+                context.PropertyDescriptor.IsReadOnly)
                 return UITypeEditorEditStyle.None;
             return UITypeEditorEditStyle.Modal;
         }

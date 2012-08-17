@@ -41,6 +41,77 @@ namespace ED7Editor
             }
         }
     }
+    public abstract class Component
+    {
+        public Component(string s = null)
+        {
+            Type = s;
+        }
+
+        public string Type { get; protected set; }
+
+        public abstract void Launch();
+
+        public override string ToString()
+        {
+            return (Type == null ? "" : Type + ": ") + 
+                Name + (ReadOnly ? "(Read-only)" : "");
+        }
+
+        public string Name
+        {
+            get
+            {
+                Type type = GetType();
+                try
+                {
+                    return ((DisplayNameAttribute)type
+                        .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+                }
+                catch
+                {
+                    var name = type.Name;
+                    if (Type != null && name.EndsWith(Type))
+                    {
+                        name = name.Substring(0, name.Length - Type.Length);
+                    }
+                    return name;
+                }
+            }
+        }
+
+        public bool ReadOnly
+        {
+            get
+            {
+                try
+                {
+                    return ((ReadOnlyAttribute)GetType()
+                        .GetCustomAttributes(typeof(ReadOnlyAttribute), true)[0]).IsReadOnly;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public bool Browsable
+        {
+            get
+            {
+                try
+                {
+                    return ((BrowsableAttribute)GetType()
+                        .GetCustomAttributes(typeof(BrowsableAttribute), true)[0]).Browsable;
+                }
+                catch
+                {
+                    return true;
+                }
+            }
+        }
+    }
     public abstract class EditorBase<T> : EditorBase where T : class
     {
         public abstract T GetById(int id);
@@ -49,8 +120,13 @@ namespace ED7Editor
             return GetById(id);
         }
     }
-    public abstract class EditorBase
+    public abstract class EditorBase : Component
     {
+        public EditorBase() : base("Editor") { }
+        public override void Launch()
+        {
+            new Editor(this).Show();
+        }
         public void Refresh()
         {
             if (Update != null)
@@ -117,12 +193,10 @@ namespace ED7Editor
         {
             return File.OpenRead(GetFile(filename, true));
         }
-
         public static FileStream WriteFile(string filename)
         {
             return File.OpenWrite(GetFile(filename));
         }
-
         private static string GetFile(string filename, bool readOnly = false)
         {
             try
@@ -154,64 +228,10 @@ namespace ED7Editor
                 throw;
             }
         }
-        public override string ToString()
-        {
-            return "Editor: " + Name + (ReadOnly ? "(Read-only)" : "");
-        }
-
-        public string Name
-        {
-            get
-            {
-                Type type = GetType();
-                try
-                {
-                    return ((DisplayNameAttribute)type
-                        .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
-                }
-                catch
-                {
-                    var name = type.Name;
-                    if (name.EndsWith("Editor"))
-                    {
-                        name = name.Substring(0, name.Length - "Editor".Length);
-                    }
-                    return name;
-                }
-            }
-        }
-
-        public bool ReadOnly
-        {
-            get
-            {
-                try
-                {
-                    return ((ReadOnlyAttribute)GetType()
-                        .GetCustomAttributes(typeof(ReadOnlyAttribute), true)[0]).IsReadOnly;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-
-        public bool Browsable
-        {
-            get
-            {
-                try
-                {
-                    return ((BrowsableAttribute)GetType()
-                        .GetCustomAttributes(typeof(BrowsableAttribute), true)[0]).Browsable;
-                }
-                catch
-                {
-                    return true;
-                }
-            }
-        }
+    }
+    public abstract class Plugin : Component
+    {
+        public Plugin() : base("Plugin") { }
     }
     public static class Helper
     {
@@ -223,6 +243,26 @@ namespace ED7Editor
                     var cons = type.GetConstructor(Type.EmptyTypes);
                     if (cons != null)
                         editors.Add(type, (EditorBase)cons.Invoke(new object[0]));
+                }
+            }
+            var dir = new DirectoryInfo(Application.StartupPath + @"\plugins");
+            if (!dir.Exists) dir.Create();
+            foreach (var file in dir.GetFiles("*.dll"))
+            {
+                try
+                {
+                    foreach (var type in Assembly.LoadFile(file.FullName).GetTypes())
+                    {
+                        if (type.IsSubclassOf(typeof(Plugin)))
+                        {
+                            var cons = type.GetConstructor(Type.EmptyTypes);
+                            plugins.Add(type, (Plugin)cons.Invoke(null));
+                        }
+                    }
+                }
+                catch (BadImageFormatException e)
+                {
+                    MessageBox.Show("无法加载文件 " + e.FileName);
                 }
             }
         }
@@ -282,6 +322,27 @@ namespace ED7Editor
 
         public static IEnumerable<EditorBase> Editors { get { return editors.Values; } }
 
+        public static IEnumerable<Plugin> Plugins { get { return plugins.Values; } }
+
+        public static IEnumerable<Component> Components
+        {
+            get
+            {
+                foreach (var x in Editors) yield return x;
+                foreach (var x in Plugins) yield return x;
+            }
+        }
+
+        public static Plugin GetPluginByType(Type type)
+        {
+            return plugins.ContainsKey(type) ? plugins[type] : null;
+        }
+
+        public static T GetPluginByType<T>() where T : Plugin
+        {
+            return (T)GetPluginByType(typeof(T));
+        }
+
         public static void Load(CancelEventHandler handler)
         {
             lock (editors)
@@ -323,6 +384,7 @@ namespace ED7Editor
         }
         static bool dirty;
         static Dictionary<Type, EditorBase> editors = new Dictionary<Type, EditorBase>();
+        static Dictionary<Type, Plugin> plugins = new Dictionary<Type, Plugin>();
 
         public static bool CheckPath()
         {
