@@ -12,6 +12,7 @@ using System.ComponentModel.Design;
 using System.Security.Cryptography;
 using System.Drawing.Design;
 using System.Linq;
+using System.Security.Permissions;
 
 namespace ED7Editor
 {
@@ -125,7 +126,8 @@ namespace ED7Editor
         public EditorBase() : base("Editor") { }
         public override void Launch()
         {
-            new Editor(this).Show();
+            using (var editor = new Editor(this))
+                editor.ShowDialog();
         }
         public void Refresh()
         {
@@ -180,14 +182,19 @@ namespace ED7Editor
         }
         public static bool ElevateProcess()
         {
-            Process process = new Process();
-            process.StartInfo.Verb = "runas";
-            process.StartInfo.FileName = Application.ExecutablePath;
-            try
+            if (Environment.GetCommandLineArgs().Contains("--no-elevate"))
+                return false;
+            using (var process = new Process())
             {
-                return process.Start();
+                process.StartInfo.Verb = "runas";
+                process.StartInfo.FileName = Application.ExecutablePath;
+                process.StartInfo.Arguments = "--no-elevate";
+                try
+                {
+                    return process.Start();
+                }
+                catch { return false; }
             }
-            catch { return false; }
         }
         public static FileStream ReadFile(string filename)
         {
@@ -224,7 +231,13 @@ namespace ED7Editor
             {
                 if (!ElevateProcess())
                     MessageBox.Show("拒绝访问！请以管理员权限运行此程序。");
-                Environment.Exit(0);
+                Environment.Exit(1);
+                throw;
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("资源文件不存在！请下载对应版本的资源文件。");
+                Environment.Exit(1);
                 throw;
             }
         }
@@ -385,6 +398,7 @@ namespace ED7Editor
         static bool dirty;
         static Dictionary<Type, EditorBase> editors = new Dictionary<Type, EditorBase>();
         static Dictionary<Type, Plugin> plugins = new Dictionary<Type, Plugin>();
+        static MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 
         public static bool CheckPath()
         {
@@ -400,12 +414,18 @@ namespace ED7Editor
             if (!info.Exists)
                 return false;
             var files = info.GetFiles("ED_ZERO.exe", SearchOption.TopDirectoryOnly);
-            if (files.Length != 1) return false;
+            if (files.Length != 1)
+            {
+                Debug.Assert(files.Length == 0);
+                MessageBox.Show("找不到ED_ZERO.exe");
+                return false;
+            }
             var file = files[0];
             byte[] hash;
             using (var stream = file.OpenRead())
-                hash = new MD5CryptoServiceProvider().ComputeHash(stream);
-            switch (BitConverter.ToString(hash).Replace("-", ""))
+                hash = md5.ComputeHash(stream);
+            var md5hash = BitConverter.ToString(hash).Replace("-", "");
+            switch (md5hash)
             {
                 case "DA16661AEF931C86645E3B5D41A00B45":
                     Encoding = Encoding.GetEncoding(950);
@@ -414,6 +434,7 @@ namespace ED7Editor
                     Encoding = Encoding.GetEncoding(936);
                     return true;
                 default:
+                    MessageBox.Show("未知版本：" + md5hash);
                     return false;
             }
         }
@@ -476,6 +497,9 @@ namespace ED7Editor
             return true;
         }
     }
+
+    [PermissionSet(SecurityAction.LinkDemand, Name = "FullTrust")]
+    [PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
     public class MultilineStringEditorBase : UITypeEditor
     {
         public MultilineStringEditorBase(string lineBreak)
@@ -541,6 +565,7 @@ namespace ED7Editor
             if (needConvert) value = FromString(context.PropertyDescriptor.PropertyType, after as string);
             return value;
         }
+
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
             return editor.GetEditStyle(context);

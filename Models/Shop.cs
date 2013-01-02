@@ -141,7 +141,7 @@ namespace ED7Editor
         public ShopField Field { get; set; }
         public string Name { get; set; }
         [Editor(typeof(MyCollectionEditor), typeof(UITypeEditor))]
-        public List<ItemReference> Items { get; set; }
+        public List<ItemReference> Items { get; internal set; }
         public override string ToString()
         {
             return String.Format("{0:000} {1}", Field.ID, Name);
