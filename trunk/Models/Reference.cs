@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Linq;
 using System.Globalization;
+using System.Security.Permissions;
 
 namespace ED7Editor
 {
@@ -39,6 +40,8 @@ namespace ED7Editor
             }
         }
     }
+    [PermissionSet(SecurityAction.LinkDemand, Name = "FullTrust")]
+    [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
     public class ReferenceEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -59,18 +62,22 @@ namespace ED7Editor
             while (Helper.GetGenericName(t) != GenericName)
                 t = t.BaseType;
             var types = t.GetGenericArguments();
-            var selector = new Selector(Helper.GetEditorsOfType(types[0]).Single());
-            var id = Convert.ToInt32(value.GetType().GetProperty("ID").GetValue(value, null));
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+            using (var selector = new Selector(Helper.GetEditorsOfType(types[0]).Single()))
             {
-                value = type.GetConstructor(Type.EmptyTypes).Invoke(null);
-                type.GetProperty("ID")
-                    .SetValue(value, Convert.ChangeType(selector.Result, types[1]), null);
+                var id = Convert.ToInt32(value.GetType().GetProperty("ID").GetValue(value, null));
+                selector.SetSelect(id);
+                if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                {
+                    value = type.GetConstructor(Type.EmptyTypes).Invoke(null);
+                    type.GetProperty("ID")
+                        .SetValue(value, Convert.ChangeType(selector.Result, types[1]), null);
+                }
+                return value;
             }
-            return value;
         }
     }
+    [PermissionSet(SecurityAction.LinkDemand, Name = "FullTrust")]
+    [PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
     public class ReferenceIDEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
@@ -89,14 +96,16 @@ namespace ED7Editor
             while (Helper.GetGenericName(type) != GenericName)
                 type = type.BaseType;
             var types = type.GetGenericArguments();
-            var selector = new Selector(Helper.GetEditorsOfType(types[0]).Single());
-            var id = Convert.ToInt32(value);
-            selector.SetSelect(id);
-            if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+            using (var selector = new Selector(Helper.GetEditorsOfType(types[0]).Single()))
             {
-                return Convert.ChangeType(selector.Result, types[1]);
+                var id = Convert.ToInt32(value);
+                selector.SetSelect(id);
+                if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                {
+                    return Convert.ChangeType(selector.Result, types[1]);
+                }
+                return value;
             }
-            return value;
         }
     }
 

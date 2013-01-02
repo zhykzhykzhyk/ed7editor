@@ -126,7 +126,7 @@ namespace ED7Editor
         [Browsable(false)]
         public string Name { get; set; }
         [Editor(typeof(MyCollectionEditor), typeof(UITypeEditor))]
-        public List<TradeField> Trades { get; set; }
+        public List<TradeField> Trades { get; internal set; }
         public override string ToString()
         {
             return Name;

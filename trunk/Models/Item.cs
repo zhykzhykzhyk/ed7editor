@@ -207,7 +207,7 @@ namespace ED7Editor
         public override Item GetById(int id)
         {
             lock (this) if (items == null) Load();
-            var x = id - 990;
+            var x = checked(id - 990);
             if (x >= 0 && x < QuartzName.Length) return new Item
             {
                 Name = QuartzName[x] + "之耀晶片",

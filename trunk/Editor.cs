@@ -58,7 +58,7 @@ namespace ED7Editor
         {
             int index;
             string result = Interaction.InputBox("请输入编号：");
-            if (result == "") return;
+            if (string.IsNullOrEmpty(result)) return;
             if (!int.TryParse(result, out index))
             {
                 MessageBox.Show("请输入一个数字");

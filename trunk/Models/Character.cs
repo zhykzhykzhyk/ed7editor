@@ -92,7 +92,7 @@ namespace ED7Editor
     {
         public OrbField Field { get; set; }
         [Editor(typeof(MyCollectionEditor), typeof(UITypeEditor))]
-        public List<OrbLine> Lines { get; set; }
+        public List<OrbLine> Lines { get; internal set; }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -158,7 +158,7 @@ namespace ED7Editor
         public Name Name { get; set; }
         public Orb Orb { get; set; }
         [Editor(typeof(MyCollectionEditor), typeof(UITypeEditor))]
-        public List<CraftGet> Crafts { get; set; }
+        public List<CraftGet> Crafts { get; internal set; }
         [ReadOnly(true)]
         public Slot[] Slots { get; set; }
         public override string ToString()
