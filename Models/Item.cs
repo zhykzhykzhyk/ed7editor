@@ -223,10 +223,13 @@ namespace ED7Editor
             {
                 int i = 0;
 #if AONOKISEKI
-                stream.ReadByte();
-                stream.ReadByte();
+                var b1 = stream.ReadByte();
+                var b2 = stream.ReadByte();
+                var length = (ushort)b2 << 8 | b1;
+#else
+                var length = stream.Length
 #endif
-                while (stream.Position < stream.Length)
+                while (stream.Position < length)
                 {
                     quartz[i++] = ReadStrcuture<ItemQuartz>(stream);
                 }

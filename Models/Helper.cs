@@ -64,20 +64,16 @@ namespace ED7Editor
             get
             {
                 Type type = GetType();
-                try
+                var attributes = type.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+                if (attributes.Length != 0)
+                    return ((DisplayNameAttribute)attributes[0]).DisplayName;
+
+                var name = type.Name;
+                if (Type != null && name.EndsWith(Type))
                 {
-                    return ((DisplayNameAttribute)type
-                        .GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+                    name = name.Substring(0, name.Length - Type.Length);
                 }
-                catch
-                {
-                    var name = type.Name;
-                    if (Type != null && name.EndsWith(Type))
-                    {
-                        name = name.Substring(0, name.Length - Type.Length);
-                    }
-                    return name;
-                }
+                return name;
             }
         }
 
@@ -85,15 +81,10 @@ namespace ED7Editor
         {
             get
             {
-                try
-                {
-                    return ((ReadOnlyAttribute)GetType()
-                        .GetCustomAttributes(typeof(ReadOnlyAttribute), true)[0]).IsReadOnly;
-                }
-                catch
-                {
+                var attributes = GetType().GetCustomAttributes(typeof(ReadOnlyAttribute), true);
+                if (attributes.Length == 0)
                     return false;
-                }
+                return ((ReadOnlyAttribute)attributes[0]).IsReadOnly;
             }
         }
 
@@ -101,15 +92,10 @@ namespace ED7Editor
         {
             get
             {
-                try
-                {
-                    return ((BrowsableAttribute)GetType()
-                        .GetCustomAttributes(typeof(BrowsableAttribute), true)[0]).Browsable;
-                }
-                catch
-                {
+                var attributes = GetType().GetCustomAttributes(typeof(BrowsableAttribute), true);
+                if (attributes.Length == 0)
                     return true;
-                }
+                return ((BrowsableAttribute)attributes[0]).Browsable;
             }
         }
     }
@@ -286,7 +272,7 @@ namespace ED7Editor
             private set;
         }
 #else
-        public readonly static Encoding Encoding = Encoding.GetEncoding("Shift-JIS");
+        public readonly static Encoding Encoding = Encoding.GetEncoding("GB18030");
 #endif
         public static EditorBase GetEditorByType(Type type)
         {
@@ -402,6 +388,9 @@ namespace ED7Editor
 
         public static bool CheckPath()
         {
+#if AONOKISEKI
+            return true;
+#else
             DirectoryInfo info;
             try
             {
@@ -437,6 +426,7 @@ namespace ED7Editor
                     MessageBox.Show("未知版本：" + md5hash);
                     return false;
             }
+#endif
         }
 
         public static bool SetPath(string p)

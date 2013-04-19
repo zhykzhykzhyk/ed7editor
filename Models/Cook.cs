@@ -41,6 +41,24 @@ namespace ED7Editor
             get { return id; }
             set { id = value; }
         }
+#if AONOKISEKI
+        ushort unknown;
+
+        [Browsable(false)]
+        public ushort Unknown
+        {
+            get { return unknown; }
+            set { unknown = value; }
+        }
+
+        ItemReference perfect;
+
+        public ItemReference PerfectProduct
+        {
+            get { return perfect; }
+            set { perfect = value; }
+        }
+#endif
         ItemReference product;
 
         public ItemReference Product
@@ -48,6 +66,15 @@ namespace ED7Editor
             get { return product; }
             set { product = value; }
         }
+#if AONOKISEKI
+        ItemReference unexpected;
+
+        public ItemReference UnexpectedProduct
+        {
+            get { return unexpected; }
+            set { unexpected = value; }
+        }
+#endif
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
         ItemCount[] material;
 
@@ -56,7 +83,11 @@ namespace ED7Editor
             get { return material; }
             internal set { material = value; }
         }
+#if AONOKISEKI
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+#else
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+#endif
         ushort[] level;
 
         public ushort[] Level
@@ -71,6 +102,7 @@ namespace ED7Editor
             get { return description; }
             set { description = value; }
         }
+#if !AONOKISEKI
         ushort unknown;
 
         [Browsable(false)]
@@ -79,6 +111,7 @@ namespace ED7Editor
             get { return unknown; }
             set { unknown = value; }
         }
+#endif
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -90,14 +123,45 @@ namespace ED7Editor
         {
             get { return character; }
         }
-
+#if AONOKISEKI
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+#else
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+#endif
         LevelProbability[] levels;
 
         public LevelProbability[] Levels
         {
             get { return levels; }
             internal set { levels = value; }
+        }
+        
+#if AONOKISEKI
+        ushort unknown;
+        public ushort Zero
+        {
+            get { return unknown; }
+            set { unknown = value; }
+        }
+#endif
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public class UnknownData
+    {
+        ushort id;
+        [ReadOnly(true)]
+        public ushort ID
+        {
+            get { return id; }
+            set { id = value; }
+        }
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
+        ushort[] unknown;
+
+        public ushort[] Unknown
+        {
+            get { return unknown; }
+            internal set { unknown = value; }
         }
     }
     [TypeConverter(typeof(ValueTypeConverter))]
@@ -136,7 +200,7 @@ namespace ED7Editor
     {
         List<Recipe> recipes;
         CookProbability[] probability;
-
+        UnknownData[] data;
 
         public override void Load()
         {
@@ -146,6 +210,9 @@ namespace ED7Editor
                 recipes = new List<Recipe>();
                 ushort pos1 = reader.ReadUInt16();
                 ushort pos2 = reader.ReadUInt16();
+#if AONOKISEKI
+                ushort pos3 = reader.ReadUInt16();
+#endif
                 stream.Position = pos1;
                 while (stream.Position < pos2)
                 {
@@ -163,9 +230,21 @@ namespace ED7Editor
                     if (recipe.Field.ID == 999) break;
                 }
                 stream.Position = pos2;
+#if AONOKISEKI
+                var probability = new List<CookProbability>();
+                while (stream.Position < pos3)
+                {
+                    probability.Add(ReadStrcuture<CookProbability>(stream));
+                }
+                this.probability = probability.ToArray();
+                data = new UnknownData[9];
+                for (int i = 0; i < 9; i++)
+                    data[i] = ReadStrcuture<UnknownData>(stream);
+#else
                 probability = new CookProbability[4];
                 for (int i = 0; i < 4; i++)
                     probability[i] = ReadStrcuture<CookProbability>(stream);
+#endif
             }
         }
 
@@ -207,11 +286,19 @@ namespace ED7Editor
             using (var stream = WriteFile("t_cook._dt"))
             using (var writer = new BinaryWriter(stream))
             {
+#if AONOKISEKI
+                long epos = 6;
+#else
                 long epos = 4;
+#endif
                 writer.Write((ushort)epos);
                 epos += Marshal.SizeOf(typeof(RecipeField)) * recipes.Count;
                 writer.Write((ushort)epos);
                 epos += Marshal.SizeOf(typeof(CookProbability)) * probability.Length;
+#if AONOKISEKI
+                writer.Write((ushort)epos);
+                epos += 0; // Unknown data
+#endif
                 foreach (var recipe in recipes)
                 {
                     recipe.Field.Description = (ushort)(recipe.Description == null ? 0 : epos);
