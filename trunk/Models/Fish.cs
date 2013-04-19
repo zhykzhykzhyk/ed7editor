@@ -159,7 +159,11 @@ namespace ED7Editor
             get { return unknown; }
             set { unknown = value; }
         }
+#if AONOKISEKI
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst=10)]
+#else
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=30)]
+#endif
         ushort[] bait;
 
         [TypeConverter(typeof(ReferenceArrayConverter<Item, ushort>))]
@@ -172,15 +176,17 @@ namespace ED7Editor
         public string Name
         {
             get
-            {
-                try
-                {
-                    return Helper.GetEditorByType<ItemEditor>().GetById(50 + id).Name;
-                }
-                catch
-                {
+            {  
+#if AONOKISEKI
+                var aid = 20 + id;
+#else
+                var aid = 50 + id;
+#endif
+                var item = Helper.GetEditorByType<ItemEditor>().GetById(aid);
+                if (item != null)
+                    return item.Name;
+                else
                     return "";
-                }
             }
         }
 
@@ -207,7 +213,7 @@ namespace ED7Editor
             get { return town; }
             set { town = value; }
         }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst=16)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
         sbyte[] fish;
         [TypeConverter(typeof(ReferenceArrayConverter<Fish, sbyte>))]
         public sbyte[] Fish
@@ -236,6 +242,7 @@ namespace ED7Editor
         List<Pole> poles;
         public override void Load()
         {
+            //return;
             using (var stream = ReadFile("t_fish._dt"))
             using (var reader = new BinaryReader(stream))
             {
@@ -257,7 +264,7 @@ namespace ED7Editor
                         fish.Description = ReadString(stream);
                         stream.Position = pos;
                     }
-                    else fish.Description = null;
+                    else fish.Description = "";// null;
                     fishes.Add(fish);
                 } while (fish.Field.ID != 99);
                 Pole pole;
@@ -271,7 +278,11 @@ namespace ED7Editor
                 {
                     place = ReadStrcuture<Place>(stream);
                     places.Add(place);
+#if AONOKISEKI
+                } while (place.ID != 0x22);
+#else
                 } while (place.ID != 99);
+#endif
             }
         }
 

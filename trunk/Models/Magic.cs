@@ -197,6 +197,21 @@ namespace ED7Editor
     [Editor(typeof(MagicQuartzEditor), typeof(UITypeEditor))]
     public class MagicQuartz
     {
+#if AONOKISEKI
+        public MagicQuartz()
+        {
+            Quartz = new byte[7];
+        }
+        public byte ID;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
+        private byte[] quartz;
+
+        public byte[] Quartz
+        {
+            get { return quartz; }
+            internal set { quartz = value; }
+        }
+#else
         public MagicQuartz()
         {
             Quartz = new ushort[7];
@@ -210,6 +225,7 @@ namespace ED7Editor
             get { return quartz; }
             internal set { quartz = value; }
         }
+#endif
 
     }
 
@@ -311,7 +327,6 @@ namespace ED7Editor
 #else
             ushort[] lp = new ushort[350];
 #endif
-#if !AONOKISEKI
             using (var stream = ReadFile("t_magqrt._dt"))
             using (var reader = new BinaryReader(stream))
             {
@@ -321,11 +336,14 @@ namespace ED7Editor
                 {
                     stream.Position = lp[i];
                     MagicQuartz quart = ReadStrcuture<MagicQuartz>(stream);
+#if AONOKISEKI
+                    if (quart.ID != 255)
+#else
                     if (quart.ID != 999)
-                        quartz[quart.ID] = quart;
+#endif
+                    quartz[quart.ID] = quart;
                 }
             }
-#endif
             using (var stream = ReadFile("t_magic._dt"))
             using (var reader = new BinaryReader(stream))
             {
@@ -393,7 +411,11 @@ namespace ED7Editor
                     stream.Position = p;
                     if (quartz[i] != null)
                     {
+#if AONOKISEKI
+                        quartz[i].ID = (byte)i;
+#else
                         quartz[i].ID = (ushort)i;
+#endif
                         WriteStruct(stream, quartz[i]);
                         p = stream.Position;
                     }

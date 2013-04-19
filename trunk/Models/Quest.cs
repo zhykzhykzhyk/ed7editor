@@ -144,6 +144,7 @@ namespace ED7Editor
 
         public override void Load()
         {
+            return;
             using (var stream = ReadFile("t_quest._dt"))
             using (var reader = new BinaryReader(stream))
             {

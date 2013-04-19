@@ -35,7 +35,7 @@ namespace ED7Editor
             }
             comboBox1.SelectedIndex = 0;
             Helper.Load(WarnDirty);
-#if AONOKISEKI
+#if __AONOKISEKI
             using (var writer = new StreamWriter(@"D:\item.txt"))
             {
                 foreach (var f in Helper.GetEditorByType(typeof(ItemEditor)).GetList())
