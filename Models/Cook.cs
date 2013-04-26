@@ -32,6 +32,28 @@ namespace ED7Editor
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class CookVoice
+    {
+        ushort ID;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        SEReference[] levels;
+
+        public SEReference[] Levels
+        {
+            get { return levels; }
+            internal set { levels = value; }
+        }
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+        SEReference[] results;
+
+        public SEReference[] Results
+        {
+            get { return results; }
+            internal set { results = value; }
+        }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RecipeField
     {
         ushort id;
@@ -145,25 +167,6 @@ namespace ED7Editor
         }
 #endif
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public class UnknownData
-    {
-        ushort id;
-        [ReadOnly(true)]
-        public ushort ID
-        {
-            get { return id; }
-            set { id = value; }
-        }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
-        ushort[] unknown;
-
-        public ushort[] Unknown
-        {
-            get { return unknown; }
-            internal set { unknown = value; }
-        }
-    }
     [TypeConverter(typeof(ValueTypeConverter))]
     public struct LevelProbability
     {
@@ -200,7 +203,7 @@ namespace ED7Editor
     {
         List<Recipe> recipes;
         CookProbability[] probability;
-        UnknownData[] data;
+        CookVoice[] voice;
 
         public override void Load()
         {
@@ -237,9 +240,10 @@ namespace ED7Editor
                     probability.Add(ReadStrcuture<CookProbability>(stream));
                 }
                 this.probability = probability.ToArray();
-                data = new UnknownData[9];
+                var voice = new CookVoice[9];
                 for (int i = 0; i < 9; i++)
-                    data[i] = ReadStrcuture<UnknownData>(stream);
+                    voice[i] = ReadStrcuture<CookVoice>(stream);
+                this.voice = voice;
 #else
                 probability = new CookProbability[4];
                 for (int i = 0; i < 4; i++)
@@ -250,6 +254,7 @@ namespace ED7Editor
 
         public override IEnumerable<IndexedItem> GetList()
         {
+            yield return new IndexedItem { Index = -2, Item = voice, Name = "Voices" };
             yield return new IndexedItem { Index = -1, Item = probability, Name = "Probability" };
             foreach (var recipe in recipes)
                 if (recipe.Field.ID != 999)
@@ -297,7 +302,7 @@ namespace ED7Editor
                 epos += Marshal.SizeOf(typeof(CookProbability)) * probability.Length;
 #if AONOKISEKI
                 writer.Write((ushort)epos);
-                epos += 0; // Unknown data
+                epos += Marshal.SizeOf(typeof(CookVoice)) * voice.Length; // Unknown data
 #endif
                 foreach (var recipe in recipes)
                 {
@@ -316,6 +321,10 @@ namespace ED7Editor
                 }
                 for (int i = 0; i < probability.Length; i++)
                     WriteStruct(stream, probability[i]);
+#if AONOKISEKI
+                for (int i = 0; i < voice.Length; i++)
+                    WriteStruct(stream, voice[i]);
+#endif
             }
         }
     }
