@@ -133,6 +133,9 @@ namespace ED7Editor
     }
 
     [ReadOnly(true)]
+#if AONOKISEKI
+    [Browsable(false)]
+#endif
     public class QuestEditor : EditorBase<Quest>
     {
         public override Quest GetById(int id)
@@ -144,7 +147,7 @@ namespace ED7Editor
 
         public override void Load()
         {
-            return;
+#if !AONOKISEKI
             using (var stream = ReadFile("t_quest._dt"))
             using (var reader = new BinaryReader(stream))
             {
@@ -178,6 +181,7 @@ namespace ED7Editor
 
                 }
             }
+#endif
         }
 
         public override IEnumerable<IndexedItem> GetList()

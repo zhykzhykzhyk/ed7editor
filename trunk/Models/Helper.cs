@@ -110,10 +110,16 @@ namespace ED7Editor
     public abstract class EditorBase : Component
     {
         public EditorBase() : base("Editor") { }
+        private Form editor;
         public override void Launch()
         {
-            using (var editor = new Editor(this))
-                editor.ShowDialog();
+            lock (this)
+            {
+                if (editor == null)
+                    editor = new Editor(this);
+            }
+            editor.Hide();
+            editor.Show();
         }
         public void Refresh()
         {
@@ -242,6 +248,12 @@ namespace ED7Editor
                     var cons = type.GetConstructor(Type.EmptyTypes);
                     if (cons != null)
                         editors.Add(type, (EditorBase)cons.Invoke(new object[0]));
+                }
+                if (type.IsSubclassOf(typeof(Plugin)))
+                {
+                    var cons = type.GetConstructor(Type.EmptyTypes);
+                    if (cons != null)
+                        plugins.Add(type, (Plugin)cons.Invoke(new object[0]));
                 }
             }
             var dir = new DirectoryInfo(Application.StartupPath + @"\plugins");
@@ -388,9 +400,6 @@ namespace ED7Editor
 
         public static bool CheckPath()
         {
-#if AONOKISEKI
-            return true;
-#else
             DirectoryInfo info;
             try
             {
@@ -402,11 +411,16 @@ namespace ED7Editor
             }
             if (!info.Exists)
                 return false;
+#if AONOKISEKI
+            var files = info.GetFiles("ED_AO.exe", SearchOption.TopDirectoryOnly);
+#else
             var files = info.GetFiles("ED_ZERO.exe", SearchOption.TopDirectoryOnly);
-            if (files.Length != 1)
+#endif
+            if (files.Length == 0)
             {
-                Debug.Assert(files.Length == 0);
+#if !AONOKISEKI
                 MessageBox.Show("找不到ED_ZERO.exe");
+#endif
                 return false;
             }
             var file = files[0];
@@ -416,17 +430,21 @@ namespace ED7Editor
             var md5hash = BitConverter.ToString(hash).Replace("-", "");
             switch (md5hash)
             {
+#if AONOKISEKI
+                case "7E2537C01477BD883A0301AC43563C48":
+                    return true;
+#else
                 case "DA16661AEF931C86645E3B5D41A00B45":
                     Encoding = Encoding.GetEncoding(950);
                     return true;
                 case "1E17B6101C3BC6CE779AF192F7F5E8BF":
                     Encoding = Encoding.GetEncoding(936);
                     return true;
+#endif
                 default:
                     MessageBox.Show("未知版本：" + md5hash);
                     return false;
             }
-#endif
         }
 
         public static bool SetPath(string p)

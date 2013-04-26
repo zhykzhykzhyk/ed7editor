@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ED7Editor</RootNamespace>
-    <AssemblyName>ED7Editor</AssemblyName>
+    <AssemblyName>ED7Editor2</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -32,6 +32,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>false</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -39,7 +40,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;AONOKISEKI</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -48,7 +49,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;AONOKISEKI</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
@@ -88,6 +89,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;e:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -104,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Cook.cs" />
+    <Compile Include="Models\Debug.cs" />
     <Compile Include="Models\Fish.cs" />
     <Compile Include="Models\LinqBridge-1.2.cs" />
     <Compile Include="Models\Magic.cs" />
@@ -121,6 +124,15 @@
     <Compile Include="Loader.Designer.cs">
       <DependentUpon>Loader.cs</DependentUpon>
     </Compile>
+    <Compile Include="SoundSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SoundSelector.Designer.cs">
+      <DependentUpon>SoundSelector.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="SoundSelector.resx">
+      <DependentUpon>SoundSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="950\t_bgm._dt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -193,12 +205,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="950\t_world._dt" />
-    <None Include="MagicEditor.cs">
-      <SubType>Form</SubType>
-    </None>
-    <None Include="MagicEditor.Designer.cs">
-      <DependentUpon>MagicEditor.cs</DependentUpon>
-    </None>
     <Compile Include="Models\Item.cs" />
     <Compile Include="Models\Character.cs" />
     <Compile Include="Models\Quest.cs" />
@@ -221,9 +227,6 @@
     <EmbeddedResource Include="Loader.resx">
       <DependentUpon>Loader.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="MagicEditor.resx">
-      <DependentUpon>MagicEditor.cs</DependentUpon>
-    </None>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

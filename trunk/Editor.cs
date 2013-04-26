@@ -49,11 +49,6 @@ namespace ED7Editor
             propertyGrid1.ExpandAllGridItems();
         }
 
-        private void ItemEditor_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            this.editor.Update -= euh;
-        }
-
         private void Add_Click(object sender, EventArgs e)
         {
             int index;
@@ -130,7 +125,8 @@ namespace ED7Editor
 
         private void Editor_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+            e.Cancel = true;
+            this.Hide();
         }
 
     }

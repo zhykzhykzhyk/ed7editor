@@ -218,7 +218,12 @@ namespace ED7Editor
         public override void Load()
         {
             SortedDictionary<ushort, Item> Item = new SortedDictionary<ushort, Item>();
+#if AONOKISEKI
+            ItemQuartz[] quartz = new ItemQuartz[120];
+            MasterQuartz[] master = new MasterQuartz[22];
+#else
             ItemQuartz[] quartz = new ItemQuartz[200];
+#endif
             using (var stream = ReadFile("t_quartz._dt"))
             {
                 int i = 0;
@@ -227,12 +232,19 @@ namespace ED7Editor
                 var b2 = stream.ReadByte();
                 var length = (ushort)b2 << 8 | b1;
 #else
-                var length = stream.Length
+                var length = stream.Length;
 #endif
                 while (stream.Position < length)
                 {
                     quartz[i++] = ReadStrcuture<ItemQuartz>(stream);
                 }
+#if AONOKISEKI
+                i = 0;
+                while (i < master.Length)
+                {
+                    master[i++] = ReadStrcuture<MasterQuartz>(stream);
+                }
+#endif
             }
             using (var stream = ReadFile("t_item._dt"))
             using (var reader = new BinaryReader(stream))
@@ -253,9 +265,13 @@ namespace ED7Editor
                     Item item = new Item { Name = "", Description = "" };
                     stream.Seek(p, SeekOrigin.Begin);
                     item.Field = ReadStrcuture<ItemField>(stream);
-                    if (item.Field.ID >= 100 && item.Field.ID < 300)
+                    if (item.Field.ID >= 100 && item.Field.ID < 100 + quartz.Length)
                     {
                         item.Quartz = quartz[item.Field.ID - 100];
+#if AONOKISEKI
+                    } else if (item.Field.ID >= 220 && item.Field.ID < 242) {
+                        item.Quartz = master[item.Field.ID - 220];
+#endif
                     }
                     Item[item.Field.ID] = item;
                 }
@@ -335,6 +351,7 @@ namespace ED7Editor
                     stream.Seek(p2, SeekOrigin.Begin);
                     Item[id].Description = EditorBase.ReadString(stream);
                 }
+                Item.Remove(9999);
             }
             items = Item;
         }
@@ -346,7 +363,12 @@ namespace ED7Editor
         public override void Save()
         {
             if (items == null) return;
+#if AONOKISEKI
+            ItemQuartz[] quartz = new ItemQuartz[120];
+            MasterQuartz[] master = new MasterQuartz[22];
+#else
             ItemQuartz[] quartz = new ItemQuartz[200];
+#endif
             for (int i = 0; i < quartz.Length; i++) quartz[i] = new ItemQuartz { ID = (ushort)i };
             SortedList<ushort, Item>[] Item = new SortedList<ushort, Item>[18];
             for (int i = 0; i < Item.Length; i++)
@@ -355,22 +377,43 @@ namespace ED7Editor
             {
                 Item[item.Field.ID / 100][item.Field.ID] = item;
             }
-            foreach (Item item in Item[1].Values)
-            {
-                item.Quartz.ID = (ushort)(item.Field.ID - 100);
-                quartz[item.Quartz.ID] = item.Quartz;
-            }
-            foreach (Item item in Item[2].Values)
-            {
-                item.Quartz.ID = (ushort)(item.Field.ID - 100);
-                quartz[item.Quartz.ID] = item.Quartz;
-            }
+            for (ushort i = 0; i < quartz.Length; i++)
+                try
+                {
+                    quartz[i] = items[(ushort)(i + 100)].quartz;
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+#if AONOKISEKI
+            for (ushort i = 0; i < master.Length; i++)
+                try{
+                    master[i] = items[(ushort)(i + 220)].master;
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+#endif
             using (var stream = WriteFile("t_quartz._dt"))
+            using (var writer = new BinaryWriter(stream))
             {
+#if AONOKISEKI
+                writer.Write((ushort)0);
+#endif
                 foreach (var q in quartz)
                 {
                     WriteStruct(stream, q);
                 }
+#if AONOKISEKI
+                long pos = stream.Position;
+                stream.Position = 0;
+                writer.Write((ushort)pos);
+                stream.Position = pos;
+                foreach (var q in master)
+                {
+                    WriteStruct(stream, q);
+                }
+#endif
             }
             //Item[9][999] = new Item { Field = new ItemField { ID = 999 } };
             //Item[17][9999] = new Item { Field = new ItemField { ID = 9999 } };
@@ -535,7 +578,12 @@ namespace ED7Editor
                     Description = " ",
                     Name = " ",
                     Field = new ItemField { ID = (ushort)id },
+#if AONOKISEKI
+                    Quartz = id >= 220 && id < 242 ? (object)new MasterQuartz() : 
+                            id >= 100 && id < 220 ? new ItemQuartz() : null
+#else
                     Quartz = id >= 100 && id < 300 ? new ItemQuartz() : null
+#endif
                 });
                 return true;
             }
@@ -555,11 +603,17 @@ namespace ED7Editor
             ushort id = di.Field.ID;
             di.Field = si.Field.Duplicate();
             di.Field.ID = id;
-            if (si.Quartz != null && di.Quartz != null)
+            if (si.quartz != null && di.quartz != null)
             {
-                di.Quartz.Attr = si.Quartz.Attr;
-                si.Quartz.Cost.CopyTo(di.Quartz.Cost, 0);
-                si.Quartz.Quartz.CopyTo(di.Quartz.Quartz, 0);
+                di.quartz.Attr = si.quartz.Attr;
+                di.quartz.Cost = si.quartz.Cost;
+                di.quartz.Quartz = si.quartz.Quartz;
+            }
+            if (si.master != null && di.master != null)
+            {
+                di.master.Attr = si.master.Attr;
+                di.quartz.Cost = si.quartz.Cost;
+                di.quartz.Quartz = si.quartz.Quartz;
             }
             return true;
         }
@@ -580,15 +634,148 @@ namespace ED7Editor
         SortedDictionary<ushort, Item> items;
     }
 
+    [TypeConverter(typeof(ValueTypeConverter))]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ExpandedQuartz<T>
+    {
+        T dummy, earth, water, fire, wind, time, space, mirage;
+
+        public T Earth
+        {
+            get { return earth; }
+            set { earth = value; }
+        }
+
+        public T Water
+        {
+            get { return water; }
+            set { water = value; }
+        }
+
+        public T Fire
+        {
+            get { return fire; }
+            set { fire = value; }
+        }
+
+        public T Wind
+        {
+            get { return wind; }
+            set { wind = value; }
+        }
+
+        public T Time
+        {
+            get { return time; }
+            set { time = value; }
+        }
+
+        public T Space
+        {
+            get { return space; }
+            set { space = value; }
+        }
+
+        public T Mirage
+        {
+            get { return mirage; }
+            set { mirage = value; }
+        }
+    }
+
+    [TypeConverter(typeof(ValueTypeConverter))]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Quartz<T>
+    {
+        T earth, water, fire, wind, time, space, mirage;
+
+        public T Earth
+        {
+            get { return earth; }
+            set { earth = value; }
+        }
+
+        public T Water
+        {
+            get { return water; }
+            set { water = value; }
+        }
+
+        public T Fire
+        {
+            get { return fire; }
+            set { fire = value; }
+        }
+
+        public T Wind
+        {
+            get { return wind; }
+            set { wind = value; }
+        }
+
+        public T Time
+        {
+            get { return time; }
+            set { time = value; }
+        }
+
+        public T Space
+        {
+            get { return space; }
+            set { space = value; }
+        }
+
+        public T Mirage
+        {
+            get { return mirage; }
+            set { mirage = value; }
+        }
+    }
+
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
     public class ItemQuartz
     {
-        public ItemQuartz()
+        private ushort id;
+
+        [Browsable(false)]
+        public ushort ID
         {
-            Cost = new ushort[8];
-            Quartz = new byte[8];
+            get { return id; }
+            set { id = value; }
         }
+        private ushort attr;
+
+        public ushort Attr
+        {
+            get { return attr; }
+            set { attr = value; }
+        }
+        
+        ExpandedQuartz<ushort> cost;
+        public ExpandedQuartz<ushort> Cost
+        {
+            get { return cost; }
+            set { cost = value; }
+        }
+
+        private ExpandedQuartz<byte> quartz;
+        public ExpandedQuartz<byte> Quartz
+        {
+            get { return quartz; }
+            set { quartz = value; }
+        }
+    }
+
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [StructLayout(LayoutKind.Sequential)]
+    public class MasterQuartz
+    {
+        public MasterQuartz()
+        {
+            levels = new ExpandedQuartz<byte>[5];
+        }
+
         private ushort id;
         [Browsable(false)]
         public ushort ID
@@ -603,19 +790,14 @@ namespace ED7Editor
             get { return attr; }
             set { attr = value; }
         }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        private ushort[] cost;
-        public ushort[] Cost
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
+        ExpandedQuartz<byte>[] levels;
+
+        public ExpandedQuartz<byte>[] Levels
         {
-            get { return cost; }
-            internal set { cost = value; }
-        }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        private byte[] quartz;
-        public byte[] Quartz
-        {
-            get { return quartz; }
-            internal set { quartz = value; }
+            get { return levels; }
+            internal set { levels = value; }
         }
     }
 
@@ -623,7 +805,21 @@ namespace ED7Editor
     {
         public ItemField Field { get; set; }
         public string Name { get; set; }
-        public ItemQuartz Quartz { get; set; }
+        public ItemQuartz quartz;
+        public MasterQuartz master;
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public object Quartz
+        {
+            get
+            {
+                return master ?? (object)quartz;
+            }
+            set
+            {
+                quartz = value as ItemQuartz;
+                master = value as MasterQuartz;
+            }
+        }
         [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         public override string ToString()

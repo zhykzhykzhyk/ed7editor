@@ -166,7 +166,9 @@ namespace ED7Editor
             return Name.Value;
         }
     }
-
+#if AONOKISEKI
+    [ReadOnly(true)]
+#endif
     public class CharacterEditor : EditorBase<Character>
     {
         public override bool Add(int id)
@@ -288,6 +290,9 @@ namespace ED7Editor
 
         public override void Save()
         {
+#if AONOKISEKI
+            return;
+#endif
             using (var stream = WriteFile("t_orb._dt"))
             using (var writer = new BinaryWriter(stream))
             {

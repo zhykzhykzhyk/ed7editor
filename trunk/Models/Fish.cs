@@ -235,6 +235,9 @@ namespace ED7Editor
     public class FishReference : Reference<Fish, sbyte> { }
 
 
+#if AONOKISEKI
+    [ReadOnly(true)]
+#endif
     public class FishEditor : EditorBase<Fish>
     {
         List<Fish> fishes;
@@ -330,6 +333,9 @@ namespace ED7Editor
 
         public override void Save()
         {
+#if AONOKISEKI
+            return;
+#endif
             using (var stream = WriteFile("t_fish._dt"))
             using (var writer = new BinaryWriter(stream))
             {

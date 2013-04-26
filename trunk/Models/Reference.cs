@@ -109,7 +109,8 @@ namespace ED7Editor
         }
     }
 
-    public class ReferenceArrayConverter<T, Ti> : ArrayConverter where T:class where Ti : struct
+    public class ReferenceArrayConverter<T, Ti> : ArrayConverter
+        where T:class where Ti : struct
     {
         private class ArrayPropertyDescriptor : TypeConverter.SimplePropertyDescriptor
         {
@@ -167,4 +168,42 @@ namespace ED7Editor
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    [Editor(typeof(SEReferenceEditor), typeof(UITypeEditor))]
+    public struct SEReference
+    {
+        public override string ToString()
+        {
+            return ID.ToString();
+        }
+
+        public ushort ID { get; set; }
+    }
+
+    public class SEReferenceEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            if (context.PropertyDescriptor != null &&
+                context.PropertyDescriptor.IsReadOnly)
+                return UITypeEditorEditStyle.None;
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
+        {
+            var se = (SEReference)value;
+            using (var selector = new SoundSelector())
+            {
+                var id = se.ID;
+                selector.SetSelect(id);
+                if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                {
+                    se.ID = id;
+                }
+                return se;
+            }
+        }
+    }
 }
