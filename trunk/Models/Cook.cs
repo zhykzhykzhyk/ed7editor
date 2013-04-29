@@ -18,6 +18,9 @@ namespace ED7Editor
     public class Cook
     {
         List<Recipe> Recipes { get; set; }
+        internal static ushort[] NameTable = new ushort[]{
+            0, 1, 2, 3, 4, 8, 5, 9, 82
+        };
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Recipe
@@ -35,22 +38,46 @@ namespace ED7Editor
     public class CookVoice
     {
         ushort ID;
+        public override string ToString()
+        {
+            return new CharacterReference { ID = Cook.NameTable[ID] }.ToString();
+        }
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
         SEReference[] levels;
 
+        [AutoExpand]
         public SEReference[] Levels
         {
             get { return levels; }
             internal set { levels = value; }
         }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-        SEReference[] results;
 
-        public SEReference[] Results
+        SEReference perfect, success, failed, unexpected;
+
+        public SEReference Perfect
         {
-            get { return results; }
-            internal set { results = value; }
+            get { return perfect; }
+            set { perfect = value; }
         }
+
+        public SEReference Success
+        {
+            get { return success; }
+            set { success = value; }
+        }
+
+        public SEReference Failed
+        {
+            get { return failed; }
+            set { failed = value; }
+        }
+
+        public SEReference Unexpected
+        {
+            get { return unexpected; }
+            set { unexpected = value; }
+        }
+
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -139,11 +166,10 @@ namespace ED7Editor
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class CookProbability
     {
-        CharacterReference character;
-        [ReadOnly(true)]
-        public CharacterReference Character
+        ushort ID;
+        public override string ToString()
         {
-            get { return character; }
+            return new CharacterReference { ID = Cook.NameTable[ID] }.ToString();
         }
 #if AONOKISEKI
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
@@ -151,7 +177,7 @@ namespace ED7Editor
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
 #endif
         LevelProbability[] levels;
-
+        [AutoExpand]
         public LevelProbability[] Levels
         {
             get { return levels; }

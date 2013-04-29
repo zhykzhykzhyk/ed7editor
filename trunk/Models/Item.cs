@@ -165,6 +165,42 @@ namespace ED7Editor
         }
     }
 
+    [Browsable(false)]
+    [ReadOnly(true)]
+    public class MasterEffectsEditor : StaticListEditor<string>
+    {
+        public void Load(string[] e) { masterEffects = e; }
+        string[] masterEffects;
+
+        public string[] MasterEffects
+        {
+            get { return masterEffects; }
+        }
+        public override string GetById(int id)
+        {
+            return masterEffects[id];
+        }
+        public override IEnumerable<IndexedItem> GetList()
+        {
+            for (int i = 0; i < masterEffects.Length; i++)
+                yield return new IndexedItem
+                {
+                    Index = i,
+                    Item = masterEffects[i]
+                };
+        }
+        public override IEnumerable<SelectorItem> GetSelector()
+        {
+            for (int i = 0; i < masterEffects.Length; i++)
+                yield return new SelectorItem
+                {
+                    ID = i,
+                    Name = masterEffects[i],
+                    Description = masterEffects[i]
+                };
+        }
+    }
+    
     public class ItemEditor : EditorBase<Item>
     {
         private void WriteItemStrings(BinaryWriter writer, Item item)
@@ -221,6 +257,9 @@ namespace ED7Editor
 #if AONOKISEKI
             ItemQuartz[] quartz = new ItemQuartz[120];
             MasterQuartz[] master = new MasterQuartz[22];
+            QuartzLevel[][] mqattr = new QuartzLevel[22][];
+            for (int i = 0; i < mqattr.Length; i++)
+                mqattr[i] = new QuartzLevel[5];
 #else
             ItemQuartz[] quartz = new ItemQuartz[200];
 #endif
@@ -353,6 +392,28 @@ namespace ED7Editor
                 }
                 Item.Remove(9999);
             }
+            using (var stream = ReadFile("t_mstqrt._dt"))
+            using (var reader = new BinaryReader(stream))
+            {
+                for (int i = 0; i < mqattr.Length; i++)
+                {
+                    for (int j = 0; j < 5; j++)
+                        mqattr[i][j] = ReadStrcuture<QuartzLevel>(stream);
+                    Item[(ushort)(220 + i)].Levels = mqattr[i];
+                }
+                List<ushort> pos = new List<ushort>();
+                do
+                {
+                    pos.Add(reader.ReadUInt16());
+                } while (stream.Position < pos[0]);
+                string[] desc = new string[pos.Count];
+                for (int i = 0; i < desc.Length; i++)
+                {
+                    stream.Position = pos[i];
+                    desc[i] = ReadString(stream);
+                }
+                Helper.GetEditorByType<MasterEffectsEditor>().Load(desc);
+            }
             items = Item;
         }
         int GetLength(SortedList<ushort, Item> list)
@@ -366,6 +427,9 @@ namespace ED7Editor
 #if AONOKISEKI
             ItemQuartz[] quartz = new ItemQuartz[120];
             MasterQuartz[] master = new MasterQuartz[22];
+            QuartzLevel[][] mqattr = new QuartzLevel[22][];
+            for (int i = 0; i < mqattr.Length; i++)
+                mqattr[i] = items[(ushort)(i + 220)].Levels;
 #else
             ItemQuartz[] quartz = new ItemQuartz[200];
 #endif
@@ -565,6 +629,26 @@ namespace ED7Editor
                     }
                 }
             }
+            using (var stream = WriteFile("t_mstqrt._dt"))
+            using (var writer = new BinaryWriter(stream))
+            {
+                for (int i = 0; i < mqattr.Length; i++)
+                    for (int j = 0; j < 5; j++)
+                        WriteStruct(stream, mqattr[i][j]);
+                var effects = Helper.GetEditorByType<MasterEffectsEditor>().MasterEffects;
+                var epos = stream.Position + effects.Length * sizeof(ushort);
+                for (int i = 0; i < effects.Length; i++)
+                {
+                    writer.Write((ushort)epos);
+                    long pos = stream.Position;
+                    stream.Position = epos;
+                    var bytes = Helper.Encoding.GetBytes(effects[i]);
+                    stream.Write(bytes, 0, bytes.Length);
+                    stream.WriteByte(0);
+                    epos = stream.Position;
+                    stream.Position = pos;
+                }
+            }
         }
         public override bool Add(int id)
         {
@@ -612,8 +696,12 @@ namespace ED7Editor
             if (si.master != null && di.master != null)
             {
                 di.master.Attr = si.master.Attr;
-                di.quartz.Cost = si.quartz.Cost;
-                di.quartz.Quartz = si.quartz.Quartz;
+                si.master.Levels.CopyTo(di.master.Levels, 0);
+            }
+            if (si.Levels != null && di.Levels != null)
+            {
+                for (int i = 0; i < 5; i++)
+                    si.Levels[i].CopyTo(di.Levels[i]);
             }
             return true;
         }
@@ -636,6 +724,7 @@ namespace ED7Editor
 
     [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
+    [AutoExpand]
     public struct ExpandedQuartz<T>
     {
         T dummy, earth, water, fire, wind, time, space, mirage;
@@ -685,6 +774,7 @@ namespace ED7Editor
 
     [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
+    [AutoExpand]
     public struct Quartz<T>
     {
         T earth, water, fire, wind, time, space, mirage;
@@ -794,6 +884,7 @@ namespace ED7Editor
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
         ExpandedQuartz<byte>[] levels;
 
+        [AutoExpand]
         public ExpandedQuartz<byte>[] Levels
         {
             get { return levels; }
@@ -801,8 +892,224 @@ namespace ED7Editor
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    [Editor(typeof(MEReferenceEditor), typeof(UITypeEditor))]
+    public struct MEReference
+    {
+        public override string ToString()
+        {
+            var value = Value;
+            if (value != null) return value.ToString();
+            else return string.Format("（ID：{0}）", ID);
+        }
+
+        [Editor(typeof(ReferenceIDEditor), typeof(UITypeEditor))]
+        public byte ID { get; set; }
+
+        public string Value
+        {
+            get
+            {
+                return Helper.GetEditorByType<MasterEffectsEditor>().GetById(Convert.ToInt32(ID));
+            }
+        }
+    }
+    public class MEReferenceEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            if (context.PropertyDescriptor != null &&
+                context.PropertyDescriptor.IsReadOnly)
+                return UITypeEditorEditStyle.None;
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider,
+            object value)
+        {
+            using (var selector = new Selector(Helper.GetEditorByType<MasterEffectsEditor>()))
+            {
+                var id = ((MEReference)value).ID;
+                selector.SetSelect(id);
+                if (selector.ShowDialog() == DialogResult.OK && selector.Result != id)
+                    return new MEReference { ID = (byte)selector.Result };
+                return value;
+            }
+        }
+    }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [StructLayout(LayoutKind.Sequential)]
+    public class QuartzLevel
+    {
+        public void CopyTo(QuartzLevel level)
+        {
+            baseAttr.CopyTo(level.baseAttr);
+            effectAttr.CopyTo(level.effectAttr);
+            effects.CopyTo(level.effects, 0);
+            level.magic.ID = magic.ID;
+        }
+        static byte CDiv10(ushort s)
+        {
+            int y = s / 10;
+            if (y * 10 < s) y++;
+            return (byte)(y > 255 ? 255 : y);
+        }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [StructLayout(LayoutKind.Sequential)]
+        [AutoExpand]
+        public class Base
+        {
+            public void CopyTo(Base b)
+            {
+                b.hp = hp;
+                b.ep = ep;
+                b.str = str;
+                b.def = def;
+                b.ats = ats;
+                b.adf = adf;
+                b.spd = spd;
+            }
+            ushort hp;
+
+            public ushort Hp
+            {
+                get { return hp; }
+                set { hp = value; }
+            }
+            byte ep, str, def, ats, adf, spd;
+
+            public ushort Ep
+            {
+                get { return (ushort)(ep * 10); }
+                set { ep = CDiv10(value); }
+            }
+
+            public ushort Str
+            {
+                get { return (ushort)(str * 10); }
+                set { str = CDiv10(value); }
+            }
+
+            public ushort Def
+            {
+                get { return (ushort)(def * 10); }
+                set { def = CDiv10(value); }
+            }
+
+            public ushort Ats
+            {
+                get { return (ushort)(ats * 10); }
+                set { ats = CDiv10(value); }
+            }
+
+            public ushort Adf
+            {
+                get { return (ushort)(adf * 10); }
+                set { adf = CDiv10(value); }
+            }
+
+            public byte Spd
+            {
+                get { return spd; }
+                set { spd = value; }
+            }
+        }
+        Base baseAttr;
+
+        public Base BaseAttr
+        {
+            get { return baseAttr; }
+            set { baseAttr = value; }
+        }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [StructLayout(LayoutKind.Sequential)]
+        [AutoExpand]
+        public class Effect
+        {
+            public void CopyTo(Effect e)
+            {
+                e.at1 = at1;
+                e.at2 = at2;
+                e.at5 = at5;
+                e.at6 = at6;
+            }
+            byte at1, at2, at5, at6;
+
+            public byte At1
+            {
+                get { return at1; }
+                set { at1 = value; }
+            }
+
+            public byte At2
+            {
+                get { return at2; }
+                set { at2 = value; }
+            }
+
+            public ushort At3
+            {
+                get { return (ushort)(at2 << 8 | at1); }
+                set { at2 = (byte)(value >> 8); at1 = (byte)(value & 0xFF); }
+            }
+
+            public double At4
+            {
+                get { return (double)At3 / 100; }
+                set { checked { At3 = (ushort)(value * 100); } }
+            }
+
+            public byte At5
+            {
+                get { return at5; }
+                set { at5 = value; }
+            }
+
+            public byte At6
+            {
+                get { return at6; }
+                set { at6 = value; }
+            }
+
+            public ushort At7
+            {
+                get { return (ushort)(at6 << 8 | at5); }
+                set { at6 = (byte)(value >> 8); at5 = (byte)(value & 0xFF); }
+            }
+
+            public double At8
+            {
+                get { return (double)At7 / 100; }
+                set { checked { At7 = (ushort)(value * 100); } }
+            }
+        }
+        Effect effectAttr;
+
+        public Effect EffectAttr
+        {
+            get { return effectAttr; }
+            set { effectAttr = value; }
+        }
+        MagicReference magic;
+
+        public MagicReference Magic
+        {
+            get { return magic; }
+            set { magic = value; }
+        }
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst=6)]
+        MEReference[] effects;
+
+        public MEReference[] Effects
+        {
+            get { return effects; }
+            internal set { effects = value; }
+        }
+    }
+    
     public class Item : IComparable<Item>
     {
+        [AutoExpand]
         public ItemField Field { get; set; }
         public string Name { get; set; }
         public ItemQuartz quartz;
@@ -820,6 +1127,8 @@ namespace ED7Editor
                 master = value as MasterQuartz;
             }
         }
+        [AutoExpand]
+        public QuartzLevel[] Levels { get; internal set; }
         [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
         public override string ToString()
@@ -838,6 +1147,7 @@ namespace ED7Editor
 
     [TypeConverter(typeof(ValueTypeConverter))]
     [StructLayout(LayoutKind.Sequential)]
+    [AutoExpand]
     public struct ItemCount
     {
         ItemReference item;
@@ -848,4 +1158,5 @@ namespace ED7Editor
         }
         public ushort Count { get; set; }
     }
+    
 }

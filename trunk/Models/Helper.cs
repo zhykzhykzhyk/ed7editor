@@ -234,6 +234,14 @@ namespace ED7Editor
             }
         }
     }
+    public abstract class StaticListEditor<T> : EditorBase<T> where T : class
+    {
+        public override void Load() { }
+        public override bool Add(int id) { return false; }
+        public override bool CopyTo(object src, object dest) { return false; }
+        public override bool Remove(int item) { return false; }
+        public override void Save() { }
+    }
     public abstract class Plugin : Component
     {
         public Plugin() : base("Plugin") { }
@@ -398,6 +406,12 @@ namespace ED7Editor
         static Dictionary<Type, Plugin> plugins = new Dictionary<Type, Plugin>();
         static MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 
+        public static string ComputeHash(FileInfo f)
+        {
+            using (var stream = f.OpenRead())
+                return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "");
+        }
+
         public static bool CheckPath()
         {
             DirectoryInfo info;
@@ -412,7 +426,7 @@ namespace ED7Editor
             if (!info.Exists)
                 return false;
 #if AONOKISEKI
-            var files = info.GetFiles("ED_AO.exe", SearchOption.TopDirectoryOnly);
+            var files = info.GetFiles("*.exe", SearchOption.TopDirectoryOnly);
 #else
             var files = info.GetFiles("ED_ZERO.exe", SearchOption.TopDirectoryOnly);
 #endif
@@ -423,28 +437,27 @@ namespace ED7Editor
 #endif
                 return false;
             }
-            var file = files[0];
-            byte[] hash;
-            using (var stream = file.OpenRead())
-                hash = md5.ComputeHash(stream);
-            var md5hash = BitConverter.ToString(hash).Replace("-", "");
-            switch (md5hash)
-            {
+            var md5hashs = from file in files
+                           select ComputeHash(file);
 #if AONOKISEKI
-                case "7E2537C01477BD883A0301AC43563C48":
-                    return true;
+            var valid = new[] { 
+                "7E2537C01477BD883A0301AC43563C48",
+                "FBD61E02DF2C9A1E600AE8B4B7CCF9CE" };
+            return valid.Intersect(md5hashs).Any();
 #else
+            switch (md5hashs[0])
+            {
                 case "DA16661AEF931C86645E3B5D41A00B45":
                     Encoding = Encoding.GetEncoding(950);
                     return true;
                 case "1E17B6101C3BC6CE779AF192F7F5E8BF":
                     Encoding = Encoding.GetEncoding(936);
                     return true;
-#endif
                 default:
                     MessageBox.Show("未知版本：" + md5hash);
                     return false;
             }
+#endif
         }
 
         public static bool SetPath(string p)
@@ -602,5 +615,20 @@ namespace ED7Editor
     public class CompressedStringEditor : MultilineStringEditorBase
     {
         public CompressedStringEditor() : base("\x1") { }
+    }
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
+    public class AutoExpandAttribute : Attribute
+    {
+        public AutoExpandAttribute() { }
+        public AutoExpandAttribute(bool value) { expand = value; }
+        bool expand = true;
+        public override bool Match(object obj)
+        {
+            var o = obj as AutoExpandAttribute;
+            if (o == null)
+                return false;
+            else
+                return o.expand == expand;
+        }
     }
 }

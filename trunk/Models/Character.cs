@@ -43,6 +43,7 @@ namespace ED7Editor
         }
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     [ReadOnly(true)]
     public class Name
     {
@@ -69,6 +70,7 @@ namespace ED7Editor
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
+    [AutoExpand]
     public class OrbField
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
@@ -88,6 +90,7 @@ namespace ED7Editor
         }
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
+    [AutoExpand]
     public class Orb
     {
         public OrbField Field { get; set; }
@@ -124,33 +127,28 @@ namespace ED7Editor
     public class Slot
     {
         uint zero;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        ushort[] cost1;
-        [ReadOnly(true)]
-        public ushort[] Cost1
+        ExpandedQuartz<ushort> cost1, cost2;
+#if !AONOKISEKI
+        ExpandedQuartz<ushort> cost3;
+#endif
+
+        public ExpandedQuartz<ushort> Cost1
         {
             get { return cost1; }
             set { cost1 = value; }
         }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        ushort[] cost2;
 
-        [ReadOnly(true)]
-        public ushort[] Cost2
+        public ExpandedQuartz<ushort> Cost2
         {
             get { return cost2; }
             set { cost2 = value; }
         }
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        ushort[] cost3;
-
-        [ReadOnly(true)]
-        public ushort[] Cost3
+#if !AONOKISEKI
+        public ExpandedQuartz<ushort> Cost3
         {
             get { return cost3; }
-            set { cost3 = value; }
         }
-
+#endif
     }
 
     public class Character
@@ -160,15 +158,14 @@ namespace ED7Editor
         [Editor(typeof(MyCollectionEditor), typeof(UITypeEditor))]
         public List<CraftGet> Crafts { get; internal set; }
         [ReadOnly(true)]
+        [AutoExpand]
         public Slot[] Slots { get; set; }
         public override string ToString()
         {
             return Name.Value;
         }
     }
-#if AONOKISEKI
-    [ReadOnly(true)]
-#endif
+
     public class CharacterEditor : EditorBase<Character>
     {
         public override bool Add(int id)
@@ -290,9 +287,6 @@ namespace ED7Editor
 
         public override void Save()
         {
-#if AONOKISEKI
-            return;
-#endif
             using (var stream = WriteFile("t_orb._dt"))
             using (var writer = new BinaryWriter(stream))
             {
