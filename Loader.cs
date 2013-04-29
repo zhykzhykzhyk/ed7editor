@@ -15,17 +15,28 @@ namespace ED7Editor
         public Loader()
         {
             InitializeComponent();
+#if AONOKISEKI
+            fbd.Description = fbd.Description
+                .Replace("零之轨迹", "碧之轨迹")
+                .Replace("ed_zero", "ED_AO");
+#endif
         }
+
+        bool loaded;
 
         private void Loader_Load(object sender, EventArgs e)
         {
+            this.Opacity = 0;
+            this.Show();
 #if !DEBUG
             if (!Helper.CheckPath())
 #endif
-                do
-                    if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-                        Environment.Exit(1);
-                while (!Helper.SetPath(fbd.SelectedPath));
+            do
+            {
+                fbd.SelectedPath = Properties.Settings.Default.ED7Path;
+                if (fbd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+                    Environment.Exit(1);
+            } while (!Helper.SetPath(fbd.SelectedPath));
 
 
             foreach (var type in Helper.Components)
@@ -48,6 +59,8 @@ namespace ED7Editor
             //Hide();
             //new Editor().ShowDialog();
             //Close();
+            loaded = true;
+            this.Opacity = 1;
         }
 
         void WarnDirty(object s, CancelEventArgs e)
@@ -75,6 +88,18 @@ namespace ED7Editor
         private void Loader_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = Helper.CheckDirty(WarnDirty);
+        }
+
+        private void Loader_Activated(object sender, EventArgs e)
+        {
+            if (this.loaded)
+                this.Opacity = 1;
+        }
+
+        private void Loader_Deactivate(object sender, EventArgs e)
+        {
+            if (this.loaded)
+                this.Opacity = 0.8;
         }
     }
 }

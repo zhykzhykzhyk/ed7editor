@@ -148,6 +148,8 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "Editor";
             this.Text = "Item Editor";
+            this.Activated += new System.EventHandler(this.Editor_Activated);
+            this.Deactivate += new System.EventHandler(this.Editor_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Editor_FormClosing);
             this.Load += new System.EventHandler(this.ItemEditor_Load);
             this.contextMenuStrip1.ResumeLayout(false);

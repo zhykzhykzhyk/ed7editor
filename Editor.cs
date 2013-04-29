@@ -46,7 +46,21 @@ namespace ED7Editor
         {
             var x = listBox1.SelectedItem as IndexedItem;
             propertyGrid1.SelectedObject = x == null ? null : x.Item;
-            propertyGrid1.ExpandAllGridItems();
+            var root = propertyGrid1.SelectedGridItem;
+            while (root.Parent != null) root = root.Parent;
+            AutoExpand(root);
+        }
+
+        void AutoExpand(GridItem item)
+        {
+            foreach (GridItem property in item.GridItems)
+            {
+                AutoExpand(property);
+                var descriptor = property.PropertyDescriptor;
+                if (descriptor != null &&
+                    descriptor.Attributes.Contains(new AutoExpandAttribute()))
+                        property.Expanded = true;
+            }
         }
 
         private void Add_Click(object sender, EventArgs e)
@@ -121,12 +135,23 @@ namespace ED7Editor
         private void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
             Helper.MakeDirty();
+            propertyGrid1.Refresh();
         }
 
         private void Editor_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
             this.Hide();
+        }
+
+        private void Editor_Activated(object sender, EventArgs e)
+        {
+            this.Opacity = 1;
+        }
+
+        private void Editor_Deactivate(object sender, EventArgs e)
+        {
+            this.Opacity = 0.8;
         }
 
     }

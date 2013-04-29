@@ -195,18 +195,15 @@ namespace ED7Editor
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     [Editor(typeof(MagicQuartzEditor), typeof(UITypeEditor))]
+    [AutoExpand]
     public class MagicQuartz
     {
 #if AONOKISEKI
-        public MagicQuartz()
-        {
-            Quartz = new byte[7];
-        }
         public byte ID;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
-        private byte[] quartz;
+        
+        private Quartz<byte> quartz;
 
-        public byte[] Quartz
+        public Quartz<byte> Quartz
         {
             get { return quartz; }
             internal set { quartz = value; }
@@ -250,6 +247,7 @@ namespace ED7Editor
 
     public class Magic
     {
+        [AutoExpand]
         public MagicField Field { get; set; }
         public MagicQuartz Quartz { get; set; }
         public string Name { get; set; }
@@ -317,13 +315,13 @@ namespace ED7Editor
         public override void Load()
         {
 #if AONOKISEKI
-            Magic[] magics = new Magic[425];
+            Magic[] magics = new Magic[433];
 #else
             Magic[] magics = new Magic[350];
 #endif
             MagicQuartz[] quartz = new MagicQuartz[151];
 #if AONOKISEKI
-            ushort[] lp = new ushort[425];
+            ushort[] lp = new ushort[433];
 #else
             ushort[] lp = new ushort[350];
 #endif
@@ -351,7 +349,7 @@ namespace ED7Editor
                     lp[i] = reader.ReadUInt16();
                 for (int i = 0; i < lp.Length; i++)
                 {
-                    if (i == lp.Length - 1 || lp[i + 1] - lp[i] <= 4) continue;
+                    if (i + 1 < lp.Length && lp[i + 1] - lp[i] <= 4) continue;
                     Magic magic = new Magic();
                     stream.Seek(lp[i], SeekOrigin.Begin);
                     magic.Field = ReadStrcuture<MagicField>(stream);

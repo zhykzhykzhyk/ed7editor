@@ -26,7 +26,7 @@ namespace ED7Editor
         {
             var value = Value;
             if (value != null) return value.ToString();
-            else return "（无）";
+            else return string.Format("（ID：{0}）", ID);
         }
 
         [Editor(typeof(ReferenceIDEditor), typeof(UITypeEditor))]
@@ -40,6 +40,7 @@ namespace ED7Editor
             }
         }
     }
+    
     [PermissionSet(SecurityAction.LinkDemand, Name = "FullTrust")]
     [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
     public class ReferenceEditor : UITypeEditor
