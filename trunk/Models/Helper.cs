@@ -214,8 +214,13 @@ namespace ED7Editor
                 }
                 if (header[0] == 'S' && header[1] == 'D' && header[2] == 'F' && header[3] == 'A')
                 {
+#if AONOKISEKI
+                    MessageBox.Show("请打完补丁后再运行此程序。");
+                    Environment.Exit(1);
+#else
                     File.Move(textPath + filename, textPath + filename + ".bak");
                     File.Copy(Application.StartupPath + org + filename, textPath + filename);
+#endif
                 }
                 return textPath + filename;
             }
@@ -285,15 +290,11 @@ namespace ED7Editor
                 }
             }
         }
-#if !AONOKISEKI
         public static Encoding Encoding
         {
             get;
             private set;
         }
-#else
-        public readonly static Encoding Encoding = Encoding.GetEncoding("GB18030");
-#endif
         public static EditorBase GetEditorByType(Type type)
         {
             lock (editors)
@@ -439,25 +440,37 @@ namespace ED7Editor
             }
             var md5hashs = from file in files
                            select ComputeHash(file);
+            var valid = new Dictionary<string, int>();
 #if AONOKISEKI
-            var valid = new[] { 
-                "7E2537C01477BD883A0301AC43563C48",
-                "FBD61E02DF2C9A1E600AE8B4B7CCF9CE" };
-            return valid.Intersect(md5hashs).Any();
+            valid["7E2537C01477BD883A0301AC43563C48"] = 936;
+            valid["FBD61E02DF2C9A1E600AE8B4B7CCF9CE"] = 936;
+            valid["F1DD1BD689206900214A7EA921E4AD90"] = 950;
 #else
-            switch (md5hashs[0])
-            {
-                case "DA16661AEF931C86645E3B5D41A00B45":
-                    Encoding = Encoding.GetEncoding(950);
-                    return true;
-                case "1E17B6101C3BC6CE779AF192F7F5E8BF":
-                    Encoding = Encoding.GetEncoding(936);
-                    return true;
-                default:
-                    MessageBox.Show("未知版本：" + md5hash);
-                    return false;
-            }
+            valid["DA16661AEF931C86645E3B5D41A00B45"] = 950;
+            valid["1E17B6101C3BC6CE779AF192F7F5E8BF"] = 936;
 #endif
+            int cp = -1, ccp;
+            foreach (var hash in md5hashs)
+            {
+                if (valid.TryGetValue(hash, out ccp))
+                {
+                    if (cp != -1 && ccp != cp)
+                    {
+                        cp = -1;
+                        break;
+                    }
+                    cp = ccp;
+                }
+            }
+            if (cp == -1)
+#if AONOKISEKI
+                MessageBox.Show("未知版本");
+#else
+                MessageBox.Show("未知版本：" + md5hashs[0]);
+#endif
+            else
+                Encoding = Encoding.GetEncoding(cp);
+            return cp != -1;
         }
 
         public static bool SetPath(string p)

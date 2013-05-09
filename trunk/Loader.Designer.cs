@@ -90,11 +90,12 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "Loader";
+            this.Opacity = 0D;
             this.Text = "Loader";
             this.Activated += new System.EventHandler(this.Loader_Activated);
             this.Deactivate += new System.EventHandler(this.Loader_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Loader_FormClosing);
-            this.Load += new System.EventHandler(this.Loader_Load);
+            this.Shown += new System.EventHandler(this.Loader_Load);
             this.ResumeLayout(false);
 
         }

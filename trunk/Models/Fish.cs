@@ -26,6 +26,7 @@ namespace ED7Editor
     }
     [StructLayout(LayoutKind.Sequential)]
     [TypeConverter(typeof(ExpandableObjectConverter))]
+    [AutoExpand]
     public class FishField
     {
         ushort id;
@@ -74,6 +75,7 @@ namespace ED7Editor
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=4)]
         FishingAward[] award;
 
+        [AutoExpand]
         public FishingAward[] Award
         {
             get { return award; }
@@ -82,6 +84,7 @@ namespace ED7Editor
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=4)]
         Bait[] bait;
 
+        [AutoExpand]
         public Bait[] Bait
         {
             get { return bait; }
@@ -92,12 +95,12 @@ namespace ED7Editor
     [StructLayout(LayoutKind.Sequential)]
     public struct FishingAward
     {
-        ushort unknown;
+        ushort size;
 
-        public ushort Unknown
+        public ushort Size
         {
-            get { return unknown; }
-            set { unknown = value; }
+            get { return size; }
+            set { size = value; }
         }
         ItemReference item;
 
@@ -120,6 +123,11 @@ namespace ED7Editor
             get { return zero; }
             set { zero = value; }
         }
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}×{2}", size, item, amount) +
+                (zero != 0 ? string.Format("({0})", zero) : "");
+        }
     }
 
     [TypeConverter(typeof(ValueTypeConverter))]
@@ -139,6 +147,10 @@ namespace ED7Editor
         {
             get { return unknown; }
             set { unknown = value; }
+        }
+        public override string ToString()
+        {
+            return string.Format("{0}({1})", item, unknown);
         }
     }
 
@@ -167,6 +179,7 @@ namespace ED7Editor
         ushort[] bait;
 
         [TypeConverter(typeof(ReferenceArrayConverter<Item, ushort>))]
+        [AutoExpand]
         public ushort[] Bait
         {
             get { return bait; }
@@ -216,6 +229,7 @@ namespace ED7Editor
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
         sbyte[] fish;
         [TypeConverter(typeof(ReferenceArrayConverter<Fish, sbyte>))]
+        [AutoExpand]
         public sbyte[] Fish
         {
             get { return fish; }

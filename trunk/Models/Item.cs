@@ -1157,6 +1157,10 @@ namespace ED7Editor
             set { item = value; }
         }
         public ushort Count { get; set; }
+        public override string ToString()
+        {
+            return string.Format("{0}×{1}", item, Count);
+        }
     }
     
 }
