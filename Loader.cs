@@ -26,8 +26,6 @@ namespace ED7Editor
 
         private void Loader_Load(object sender, EventArgs e)
         {
-            this.Opacity = 0;
-            this.Show();
 #if !DEBUG
             if (!Helper.CheckPath())
 #endif

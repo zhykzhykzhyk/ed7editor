@@ -47,8 +47,11 @@ namespace ED7Editor
             var x = listBox1.SelectedItem as IndexedItem;
             propertyGrid1.SelectedObject = x == null ? null : x.Item;
             var root = propertyGrid1.SelectedGridItem;
-            while (root.Parent != null) root = root.Parent;
-            AutoExpand(root);
+            if (root != null)
+            {
+                while (root.Parent != null) root = root.Parent;
+                AutoExpand(root);
+            }
         }
 
         void AutoExpand(GridItem item)

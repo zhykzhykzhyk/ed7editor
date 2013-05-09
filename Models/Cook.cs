@@ -25,6 +25,7 @@ namespace ED7Editor
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Recipe
     {
+        [AutoExpand]
         public RecipeField Field { get; set; }
         [Editor(typeof(NormalStringEditor), typeof(UITypeEditor))]
         public string Description { get; set; }
